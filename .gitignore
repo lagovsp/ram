@@ -1,3 +1,10 @@
+.*
+*.zip
+!.gitignore
+!.clang-format
+cmake-build-debug/
+cmake-build-release/
+
 # Prerequisites
 *.d
 
