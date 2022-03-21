@@ -9,98 +9,99 @@
 #include <fstream>
 #include <variant>
 #include <unordered_map>
+#include <map>
 #include <unordered_set>
+#include <set>
 #include <functional>
 
 namespace RAM {
 
-using CellID = int;
-using CellVal = int;
+using Addr = int;
+using Val = int;
 
-using CommandType = std::string;
+using ComType = std::string;
 using ArgType = std::string;
 
 using Arg = std::variant<int, std::string>;
-using Label = std::optional<std::string>;
+using Lab = std::optional<std::string>;
 
-static const CommandType LOAD = "LOAD";
-static const CommandType STORE = "STORE";
-static const CommandType ADD = "ADD";
-static const CommandType SUB = "SUB";
-static const CommandType MULT = "MULT";
-static const CommandType DIV = "DIV";
-static const CommandType READ = "READ";
-static const CommandType WRITE = "WRITE";
-static const CommandType JUMP = "JUMP";
-static const CommandType JGTZ = "JGTZ";
-static const CommandType JZERO = "JZERO";
-static const CommandType HALT = "HALT";
+static const ComType LOAD = "LOAD";
+static const ComType STORE = "STORE";
+static const ComType ADD = "ADD";
+static const ComType SUB = "SUB";
+static const ComType MULT = "MULT";
+static const ComType DIV = "DIV";
+static const ComType READ = "READ";
+static const ComType WRITE = "WRITE";
+static const ComType JUMP = "JUMP";
+static const ComType JGTZ = "JGTZ";
+static const ComType JZERO = "JZERO";
+static const ComType HALT = "HALT";
 
 static const ArgType ADDRESS = "ADDRESS";
 static const ArgType VALUE = "VALUE";
 static const ArgType ADDRESS_AT_ADDRESS = "ADDRESS_AT_ADDRESS";
 
-struct Command {
-  CommandType ctype_;
-  ArgType atype_;
-  Arg arg_;
-  Label label_;
+struct Com {
+  ComType ctype_; // LOAD, STORE, ADD, etc.
+  ArgType atype_; // ADDRESS, VALUE, ADDRESS_AT_ADDRESS
+  Arg arg_; // 2, FU, etc.
+  Lab label_; // no_value, FU, etc.
 
-  friend std::ostream &operator<<(std::ostream &os, const Command &c);
+  friend std::ostream &operator<<(std::ostream &os, const Com &c);
 };
 
-using CommandIt = std::list<Command>::iterator;
+using ComIt = std::list<Com>::iterator;
 
 class Machine {
  public:
   Machine() = default;
   explicit Machine(std::string);
   std::list<int> run();
-  void setPath(std::string);
-  void setInput(std::string);
-  const std::list<Command> &commands() const;
+  void setPath(const std::string &);
+  void setInput(const std::string &);
+  const std::list<Com> &commands() const;
 
  private:
   void processFile(const std::string &);
-  void processCommand(std::string);
-  void addLabel(Label);
+  void processCom(std::string line);
+  void addLabel(Lab);
 
-  Command parseCommand(std::string);
-  CommandType parseCommandType(std::string);
-  ArgType parseArgumentType(std::string);
-  Arg parseArgumentNumeric(std::string line);
-  Arg parseArgumentLabel(std::string line);
-  Label parseLabel(std::string);
+  static Com parseCom(std::string line);
+  static ComType parseComType(std::string line);
+  static ArgType parseArgType(std::string line);
+  static Arg parseArgNum(std::string line);
+  static Arg parseArgLab(std::string line);
+  static Lab parseLab(std::string line);
 
-  static Arg fromValueToValue(const Machine &, const Arg &);
-  static Arg fromAddressToValue(const Machine &, const Arg &);
-  static Arg fromAddressAtAddressToValue(const Machine &, const Arg &);
+  static int fromValToArg(const Machine &m, const Arg &a);
+  static int fromAddToArg(const Machine &m, const Arg &a);
+  static int fromAddAtAddToArg(const Machine &m, const Arg &a);
 
-  using ArgumentHandler = std::function<Arg(const Machine &, const Arg &)>;
+  using ArgHandler = std::function<int(const Machine &, const Arg &)>;
 
-  const std::unordered_map<ArgType, ArgumentHandler> ARGUMENTS_HANDLERS = {
-	  {VALUE, Machine::fromValueToValue},
-	  {ADDRESS, Machine::fromAddressToValue},
-	  {ADDRESS_AT_ADDRESS, Machine::fromAddressAtAddressToValue},
+  inline static const std::map<ArgType, ArgHandler> ARG_HANDLERS = {
+	  {VALUE, Machine::fromValToArg},
+	  {ADDRESS, Machine::fromAddToArg},
+	  {ADDRESS_AT_ADDRESS, Machine::fromAddAtAddToArg},
   };
 
-  static void load(Machine &, const Arg &, CommandIt &);
-  static void store(Machine &, const Arg &, CommandIt &);
-  static void add(Machine &, const Arg &, CommandIt &);
-  static void sub(Machine &, const Arg &, CommandIt &);
-  static void mult(Machine &, const Arg &, CommandIt &);
-  static void div(Machine &, const Arg &, CommandIt &);
-  static void read(Machine &, const Arg &, CommandIt &);
-  static void write(Machine &, const Arg &, CommandIt &);
-  static void jump(Machine &, const Arg &, CommandIt &);
-  static void jgtz(Machine &, const Arg &, CommandIt &);
-  static void jzero(Machine &, const Arg &, CommandIt &);
-  static void halt(Machine &, const Arg &, CommandIt &);
+  static ComIt load(Machine &, ComIt &);
+  static ComIt store(Machine &, ComIt &);
+  static ComIt add(Machine &, ComIt &);
+  static ComIt sub(Machine &, ComIt &);
+  static ComIt mult(Machine &, ComIt &);
+  static ComIt div(Machine &, ComIt &);
+  static ComIt read(Machine &, ComIt &);
+  static ComIt write(Machine &, ComIt &);
+  static ComIt jump(Machine &, ComIt &);
+  static ComIt jgtz(Machine &, ComIt &);
+  static ComIt jzero(Machine &, ComIt &);
+  static ComIt halt(Machine &, ComIt &);
 
-  using CommandHandler =
-  std::function<void(Machine &, const Arg &, CommandIt &)>;
+  using ComHandler = std::function<ComIt(Machine &, ComIt &)>;
 
-  const std::unordered_map<CommandType, CommandHandler> COMMANDS_HANDLERS = {
+  inline static const std::map<ComType, ComHandler> COM_HANDLERS = {
 	  {LOAD, Machine::load},
 	  {STORE, Machine::store},
 	  {ADD, Machine::add},
@@ -115,14 +116,14 @@ class Machine {
 	  {HALT, Machine::halt},
   };
 
-  std::unordered_map<CellID, CellVal> memory_;
+  std::unordered_map<Addr, Val> memory_;
 
   std::string file_;
-  std::string input_;
+  std::list<int> input_;
   std::list<int> output_;
 
-  std::list<Command> commands_;
-  std::unordered_map<Label, CommandIt> labels_;
+  std::list<Com> commands_;
+  std::unordered_map<Lab, ComIt> labels_;
 };
 
 }

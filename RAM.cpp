@@ -2,109 +2,127 @@
 
 using namespace std;
 
-ostream &operator<<(ostream &os, const list<int> &l) {
-  os << "{";
-  bool first = true;
-  for (const auto &pos: l) {
-	if (!first) {
-	  os << ", ";
-	}
-	first = false;
-	os << pos;
-  }
-  return os << "}";
-}
+//ostream &operator<<(ostream &os, const list<int> &l) {
+//  os << "{";
+//  bool first = true;
+//  for (const auto &pos: l) {
+//	if (!first) {
+//	  os << ", ";
+//	}
+//	first = false;
+//	os << pos;
+//  }
+//  return os << "}";
+//}
 
 namespace RAM {
 
-template<typename T, typename... Ts>
-std::ostream &operator<<(std::ostream &os, const std::variant<T, Ts...> &v) {
-  std::visit([&os](auto &&arg) {
-	os << arg;
-  }, v);
-  return os;
-}
+#define GET_VALUE(m, c) ARG_HANDLERS.at((c)->atype_)((m), (c)->arg_)
 
-ostream &operator<<(ostream &os, const Command &c) {
+//template<typename T, typename... Ts>
+//std::ostream &operator<<(std::ostream &os, const std::variant<T, Ts...> &v) {
+//  std::visit([&os](auto &&arg) {
+//	os << arg;
+//  }, v);
+//  return os;
+//}
+
+//template<typename T>
+//auto getV(variant<int, string> v)-> decltype(v.) {
+//
+//}
+
+ostream &operator<<(ostream &os, const Com &c) {
   os << c.ctype_ << " " << c.atype_ << " " << c.arg_.index() << " " << c.label_
 	  .value();
   return os;
 }
 
-static const char SPACE = ' ';
+static const char SP = ' ';
 static const char LP = '(';
 static const char RP = ')';
 static const char EQ = '=';
 static const char PTR = '*';
-static const char COLON = ':';
+static const char COL = ':';
 
-static const string NUMERICS = "0123456789";
+static const string NUMS = "0123456789";
 
 static const string LABEL_USED_ERROR = "label has already been used";
 static const string BAD_COMMAND_ERROR = "bad command name";
+static const string NEGATIVE_ADDRESS_ERROR = "seen negative address";
 
-static const unordered_set<ArgType> LABELIC_COMMANDS = {
+static const set<ArgType> LAB_COMS = {
 	JUMP,
 	JGTZ,
 	JZERO,
 	HALT,
 };
 
-static const unordered_map<char, ArgType> CHARS_TYPES = {
+static const map<char, ArgType> CHARS_TYPES = {
 	{EQ, VALUE},
 	{PTR, ADDRESS_AT_ADDRESS},
 };
 
-const std::list<Command> &Machine::commands() const {
+const std::list<Com> &Machine::commands() const {
   return commands_;
 }
 
-Arg Machine::fromValueToValue(const Machine &m, const Arg &a) {
-  return a;
+int Machine::fromValToArg(const Machine &m, const Arg &a) {
+  return get<int>(a);
 }
 
-Arg Machine::fromAddressToValue(const Machine &m, const Arg &a) {
+int Machine::fromAddToArg(const Machine &m, const Arg &a) {
   if (get<int>(a) < 0) {
-	throw runtime_error("bad cell index");
+	throw runtime_error(NEGATIVE_ADDRESS_ERROR);
   }
-  return m.memory_.at(get<int>(a));
+  return m.memory_.at(get<int>(a)); // for STORE this does not make sense
 }
 
-Arg Machine::fromAddressAtAddressToValue(const Machine &m, const Arg &a) {
+int Machine::fromAddAtAddToArg(const Machine &m, const Arg &a) {
+  if (get<int>(a) < 0) {
+	throw runtime_error(NEGATIVE_ADDRESS_ERROR);
+  }
   return m.memory_.at(m.memory_.at(get<int>(a)));
 }
 
-Command Machine::parseCommand(std::string line) {
-  auto label = parseLabel(line);
-  auto ct = parseCommandType(line);
-  auto arg = (LABELIC_COMMANDS.contains(ct)) ?
-			 parseArgumentLabel(line) :
-			 parseArgumentNumeric(line);
+Com Machine::parseCom(string line) {
+  auto label = parseLab(line);
+  auto ct = parseComType(line);
+  auto arg = (LAB_COMS.contains(ct)) ?
+			 parseArgLab(line) :
+			 parseArgNum(line);
+  cout << "parsing com '" << line << "'" << ct
+	   << "' for arg : ";
+
+  if (holds_alternative<int>(arg)) {
+	cout << "'" << get<int>(arg) << "'";
+  } else {
+	cout << "'" << get<string>(arg) << "'";
+  }
+  cout << endl;
+
   return {
 	  move(ct),
-	  move(parseArgumentType(line)),
+	  move(parseArgType(line)),
 	  move(arg),
 	  move(label),
   };
 }
 
-CommandType Machine::parseCommandType(string line) {
-  auto it = COMMANDS_HANDLERS.find(line.substr(0, line.find(LP)));
-  if (it == COMMANDS_HANDLERS.cend()) {
+ComType Machine::parseComType(string line) {
+  auto it = COM_HANDLERS.find(line.substr(0, line.find(LP)));
+  if (it == COM_HANDLERS.cend()) {
 	throw runtime_error(BAD_COMMAND_ERROR);
   }
   return it->first;
 }
 
-ArgType Machine::parseArgumentType(string line) {
-  auto mod = line.at(line.find(LP) + 1);
-  if (auto it = CHARS_TYPES.find(mod); it != CHARS_TYPES.cend()) {
-	return it->second;
-  }
-  return ADDRESS;
+ArgType Machine::parseArgType(string line) {
+  auto it = CHARS_TYPES.find(line.at(line.find(LP) + 1));
+  return (it != CHARS_TYPES.cend()) ? it->second : ADDRESS;
 }
 
-Arg Machine::parseArgumentNumeric(string line) {
+Arg Machine::parseArgNum(string line) {
   size_t lp = line.find(LP);
   string arg = line.substr(lp + 1, line.find(RP) - lp - 1);
   if (CHARS_TYPES.contains(arg.front())) {
@@ -114,19 +132,20 @@ Arg Machine::parseArgumentNumeric(string line) {
   return stoi(arg);
 }
 
-Arg Machine::parseArgumentLabel(std::string line) {
+Arg Machine::parseArgLab(string line) {
   size_t lp = line.find(LP);
   string arg = line.substr(lp + 1, line.find(RP) - lp - 1);
 //  cout << arg << endl;
   return arg;
 }
 
-optional<string> Machine::parseLabel(string line) {
+Lab Machine::parseLab(string line) { // seems to be good
+  Lab ans = {};
   string extra = line.substr(line.find(RP) + 1, string::npos);
-  optional<string> ans;
-  if (!extra.empty()) {
-	ans = extra;
+  if (extra.size() > 1) {
+	ans = extra.substr(1, string::npos);
   }
+//  cout << "seen label is '" << ans.value_or("___nv") << "'\n";
   return ans;
 }
 
@@ -136,21 +155,35 @@ Machine::Machine(string path) : file_(move(path)) {
 
 list<int> Machine::run() {
   processFile(file_);
-  cout << commands_.size() << endl;
-  for (auto it = commands_.begin(); it != commands_.end(); ++it) {
+//  cout << "Commands seen " << commands_.size() << endl;
+  auto it = commands_.begin();
+  while (it != commands_.end()) {
 	cout << it->atype_ << endl;
-	auto a = ARGUMENTS_HANDLERS.at(it->atype_)(*this, it->arg_);
-//	COMMANDS_HANDLERS.at(it->ctype_)(*this, a, it);
+	cout << it->ctype_ << endl;
+	cout << it->arg_.index() << endl;
+	cout << it->label_.value_or("__nv") << endl;
+	auto f = COM_HANDLERS.find(it->ctype_);
+	if (f != COM_HANDLERS.end()) {
+	  cout << "HANDLER FOUND\n";
+	  it = f->second(*this, it);
+	} else {
+	  cout << "HANDLER NOT FOUND\n";
+	}
   }
   return output_;
 }
 
-void Machine::setPath(std::string path) {
-  file_ = move(path);
+void Machine::setPath(const string &path) {
+  file_ = path;
 }
 
-void Machine::setInput(string input) {
-  input_ = move(input);
+void Machine::setInput(const string &input) { // this is insane, need reformat
+  string s;
+  for (auto &c: input) {
+	s.push_back(c);
+	input_.push_back(stoi(s));
+	s.clear();
+  }
 }
 
 void Machine::processFile(const string &path) {
@@ -161,76 +194,102 @@ void Machine::processFile(const string &path) {
 	  continue;
 	}
 	cout << "now process " << buffer << endl;
-	processCommand(buffer);
+	processCom(buffer);
   }
   cout << "file has been processed" << endl;
 }
 
-void Machine::processCommand(string line) {
-  Command c = parseCommand(move(line));
-  if (c.label_.has_value()) {
+void Machine::processCom(string line) {
+  Com c = parseCom(move(line));
+  if (c.label_.has_value()) { // какое нахер хэс вэлью перепиши инвалид
 	addLabel(c.label_);
   }
   commands_.push_back(move(c));
 }
 
-void Machine::addLabel(std::optional<std::string> lab) {
+void Machine::addLabel(Lab lab) {
   if (labels_.contains(lab.value())) {
 	throw runtime_error(LABEL_USED_ERROR);
   }
   labels_[lab.value()] = commands_.end();
 }
 
-void Machine::load(Machine &m, const Arg &arg, CommandIt &nc) {
-  m.memory_[0] = get<int>(arg);
+ComIt Machine::load(Machine &m, ComIt &c) {
+  cout << "called LOAD\n";
+  m.memory_[0] = GET_VALUE(m, c);
+  cout << m.memory_[0] << endl << "=============" << endl;
+  return ++c;
 }
 
-void Machine::store(Machine &m, const Arg &arg, CommandIt &nc) {
-  m.memory_[get<int>(arg)] = m.memory_[0];
-}
-
-void Machine::add(Machine &m, const Arg &arg, CommandIt &nc) {
-  m.memory_[0] += m.memory_[get<int>(arg)];
-}
-
-void Machine::sub(Machine &m, const Arg &arg, CommandIt &nc) {
-  m.memory_[0] -= m.memory_[get<int>(arg)];
-}
-
-void Machine::mult(Machine &m, const Arg &arg, CommandIt &nc) {
-  m.memory_[0] *= m.memory_[get<int>(arg)];
-}
-
-void Machine::div(Machine &m, const Arg &arg, CommandIt &nc) {
-  m.memory_[0] /= m.memory_[get<int>(arg)];
-}
-
-void Machine::read(Machine &m, const Arg &arg, CommandIt &nc) {
-  m.memory_[get<int>(arg)] = m.input_.front();
-}
-
-void Machine::write(Machine &m, const Arg &arg, CommandIt &nc) {
-  m.output_.push_back(get<int>(arg));
-}
-
-void Machine::jump(Machine &m, const Arg &arg, CommandIt &nc) {
-  nc = m.labels_.at(get<string>(arg));
-}
-
-void Machine::jgtz(Machine &m, const Arg &arg, CommandIt &nc) {
-  if (m.memory_[0] > 0) {
-	nc = m.labels_[get<string>(arg)];
+ComIt Machine::store(Machine &m, ComIt &c) {
+  cout << "called STORE\n";
+  auto buf = m.memory_[0];
+  cout << buf << endl;
+  cout << "this arg will be put: ";
+  cout.flush();
+  auto ff = ARG_HANDLERS.find(c->atype_);
+  int j = -5;
+  if (ff != ARG_HANDLERS.cend()) {
+	auto uu = ARG_HANDLERS.at(c->atype_);
+	cout << "FF FOUND" << endl;
+	cout << "path to arg handler " << &j << endl;
+	cout.flush();
+	j = uu(m, c->arg_);
+	cout.flush();
+	cout << j << endl;
   }
+  cout.flush();
+  m.memory_[j] = buf;
+  cout.flush();
+  cout << endl << "=================" << endl;
+  return ++c;
 }
 
-void Machine::jzero(Machine &m, const Arg &arg, CommandIt &nc) {
-  if (m.memory_[0] == 0) {
-	nc = m.labels_[get<string>(arg)];
-  }
+ComIt Machine::add(Machine &m, ComIt &c) {
+  m.memory_[0] += m.memory_.at(GET_VALUE(m, c));
+  return ++c;
 }
 
-void Machine::halt(Machine &m, const Arg &arg, CommandIt &nc) {
-  nc = m.commands_.end();
+ComIt Machine::sub(Machine &m, ComIt &c) {
+  m.memory_[0] -= m.memory_.at(GET_VALUE(m, c));
+  return ++c;
+}
+
+ComIt Machine::mult(Machine &m, ComIt &c) {
+  m.memory_[0] *= m.memory_.at(GET_VALUE(m, c));
+  return ++c;
+}
+
+ComIt Machine::div(Machine &m, ComIt &c) {
+  m.memory_[0] /= m.memory_.at(GET_VALUE(m, c));
+  return ++c;
+}
+
+ComIt Machine::read(Machine &m, ComIt &c) {
+  m.memory_[GET_VALUE(m, c)] = m.input_.front();
+  m.input_.pop_front();
+  return ++c;
+}
+
+ComIt Machine::write(Machine &m, ComIt &c) {
+  m.output_.push_back(GET_VALUE(m, c));
+  return ++c;
+}
+
+ComIt Machine::jump(Machine &m, ComIt &c) {
+  return m.labels_.at(get<string>(c->arg_));
+}
+
+ComIt Machine::jgtz(Machine &m, ComIt &c) {
+  return (m.memory_.at(0) > 0) ? m.labels_[get<string>(c->arg_)] : ++c;
+}
+
+ComIt Machine::jzero(Machine &m, ComIt &c) {
+  return (m.memory_.at(0) == 0) ? m.labels_[get<string>(c->arg_)] : ++c;
+}
+
+ComIt Machine::halt(Machine &m, ComIt &c) {
+  return m.commands_.end();
 }
 
 }
