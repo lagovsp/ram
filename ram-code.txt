@@ -25,7 +25,8 @@ SUB(=1)
 STORE(1)
 JUMP(R)
 
-WRITE(=10) EQ
+WRITE(=1) EQ
+WRITE(=0)
 HALT()
 
 LOAD(2) A

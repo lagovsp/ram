@@ -26,6 +26,34 @@ ostream &operator<<(ostream &os, const Com &c) {
   return os;
 }
 
+ostream &operator<<(ostream &os, const Tape &c) {
+  os << "{";
+  bool first = true;
+  for (const auto &pos: c) {
+	if (!first) {
+	  cout << ", ";
+	}
+	first = false;
+	cout << pos;
+  }
+  cout << "}";
+  return os;
+}
+
+std::ostream &operator<<(std::ostream &os, const Memory &m) {
+  os << "{";
+  bool first = true;
+  for (const auto &[key, value]: m) {
+	if (!first) {
+	  cout << ", ";
+	}
+	first = false;
+	cout << "[" << key << "] -> " << value;
+  }
+  cout << "}";
+  return os;
+}
+
 static const char SP = ' ';
 static const char LP = '(';
 static const char RP = ')';
@@ -33,24 +61,23 @@ static const char EQ = '=';
 static const char PTR = '*';
 static const char COL = ':';
 
-static const string NUMS = "0123456789";
+//static const string NUMS = "0123456789";
 
 static const string LABEL_USED_ERROR = "label has already been used";
 static const string BAD_COMMAND_ERROR = "bad command";
 static const string NEGATIVE_ADDRESS_ERROR = "seen negative address";
-
 static const string HANDLER_NOT_FOUND = "handler not found";
 
 static const set<ArgT> LAB_COMS = {
-	JUMP,
-	JGTZ,
-	JZERO,
-	HALT,
+	Machine::JUMP,
+	Machine::JGTZ,
+	Machine::JZERO,
+	Machine::HALT,
 };
 
 static const map<char, ArgT> CHARS_TYPES = { // the hell
-	{EQ, VALUE},
-	{PTR, ADDRESS_AT_ADDRESS},
+	{EQ, Machine::VALUE},
+	{PTR, Machine::ADDRESS_AT_ADDRESS},
 };
 
 const std::list<Com> &Machine::commands() const {
@@ -188,76 +215,128 @@ void Machine::add_label(list<Com>::iterator it) {
 ComIt Machine::load(Machine &m, ComIt &c) {
   cout << "called LOAD\n";
   auto &mem = m.memory_;
+  cout << *c << endl;
+  cout << mem << endl;
   auto i = GET_VALUE(m, c);
-  cout << "i == " << i << endl;
+//  cout << "i == " << i << endl;
   mem[0] = i;
-  cout << "mem.at(0) == " << mem.at(0);
+//  cout << "mem.at(0) == " << mem.at(0);
+  cout << mem << endl;
   return ++c;
 }
 
 ComIt Machine::store(Machine &m, ComIt &c) {
   cout << "called STORE\n";
   auto &mem = m.memory_;
+  cout << *c << endl;
+  cout << mem << endl;
   auto buf = mem.at(0);
   auto i = GET_VALUE(m, c);
-  cout << "i == " << i << endl;
-  cout << "gonna store mem.at(0) == " << buf << " to i" << endl;
+//  cout << "i == " << i << endl;
+//  cout << "gonna store mem.at(0) == " << buf << " to i" << endl;
   mem[GET_VALUE(m, c)] = buf;
-  cout << "at mem.at(i) == " << mem.at(i);
+//  cout << "at mem.at(i) == " << mem.at(i);
+  cout << mem << endl;
   return ++c;
 }
 
 ComIt Machine::add(Machine &m, ComIt &c) {
   cout << "called ADD\n";
   auto &mem = m.memory_;
-  auto adding = mem.at(GET_VALUE(m, c));
-  auto i = GET_VALUE(m, c);
-  cout << "mem.at(0) == " << mem.at(0) << endl;
-  cout << "i == " << i << endl;
-  cout << "mem.at(i) == " << mem.at(i);
-  mem[0] += adding;
-  cout << "mem.at(0) == " << mem.at(0) << endl;
+  cout << *c << endl;
+  cout << mem << endl;
+  auto v = GET_VALUE(m, c);
+//  cout << "mem.at(0) == " << mem.at(0) << endl;
+//  cout << "i == " << i << endl;
+//  cout << "mem.at(i) == " << mem.at(i);
+  mem[0] += v;
+//  cout << "mem.at(0) == " << mem.at(0) << endl;
+  cout << mem << endl;
   return ++c;
 }
 
 ComIt Machine::sub(Machine &m, ComIt &c) {
+  cout << "called SUB\n";
   auto &mem = m.memory_;
-  mem[0] -= mem.at(GET_VALUE(m, c));
+  cout << *c << endl;
+  cout << mem << endl;
+  auto v = GET_VALUE(m, c);
+//  cout << "mem.at(0) == " << mem.at(0) << endl;
+//  cout << "i == " << i << endl;
+//  cout << "mem.at(i) == " << mem.at(i);
+  mem[0] -= v;
+//  cout << "mem.at(0) == " << mem.at(0) << endl;
+  cout << mem << endl;
   return ++c;
 }
 
 ComIt Machine::mult(Machine &m, ComIt &c) {
+  cout << "called MULT\n";
   auto &mem = m.memory_;
-  mem[0] *= mem.at(GET_VALUE(m, c));
+  cout << *c << endl;
+  cout << mem << endl;
+  auto v = GET_VALUE(m, c);
+//  cout << "mem.at(0) == " << mem.at(0) << endl;
+//  cout << "i == " << i << endl;
+//  cout << "mem.at(i) == " << mem.at(i);
+  mem[0] *= v;
+//  cout << "mem.at(0) == " << mem.at(0) << endl;
+  cout << mem << endl;
   return ++c;
 }
 
 ComIt Machine::div(Machine &m, ComIt &c) {
+  cout << "called DIV\n";
   auto &mem = m.memory_;
-  mem[0] /= mem.at(GET_VALUE(m, c));
+  cout << *c << endl;
+  cout << mem << endl;
+  auto v = GET_VALUE(m, c);
+//  cout << "mem.at(0) == " << mem.at(0) << endl;
+//  cout << "i == " << i << endl;
+//  cout << "mem.at(i) == " << mem.at(i);
+  mem[0] /= v;
+//  cout << "mem.at(0) == " << mem.at(0) << endl;
+  cout << mem << endl;
   return ++c;
 }
 
 ComIt Machine::read(Machine &m, ComIt &c) {
+  cout << "called READ\n";
   auto &mem = m.memory_;
+  cout << *c << endl;
+  cout << mem << endl;
+  cout << "input: " << m.input_ << endl;
   auto i = GET_VALUE(m, c);
-  cout << "i == " << i << endl;
+//  cout << "i == " << i << endl;
   mem[GET_VALUE(m, c)] = m.input_.front();
-  cout << "front is " << m.input_.front() << endl;
+//  cout << "front is " << m.input_.front() << endl;
   m.input_.pop_front();
   cout << "front popped" << endl;
-  cout << "mem.at(i) == " << mem.at(i);
+//  cout << "mem.at(i) == " << mem.at(i);
+  cout << mem << endl;
+  cout << "input: " << m.input_ << endl;
   return ++c;
 }
 
 ComIt Machine::write(Machine &m, ComIt &c) {
+  cout << "called WRITE\n";
+  auto &mem = m.memory_;
+  cout << *c << endl;
+  cout << mem << endl;
+  cout << "output: " << m.output_ << endl;
+  auto letter = GET_VALUE(m, c);
+  cout << "will write '" << letter << "'" << endl;
   m.output_.push_back(GET_VALUE(m, c));
+  cout << "full out tape: " << m.output_ << endl;
   return ++c;
 }
 
 ComIt Machine::jump(Machine &m, ComIt &c) {
-  auto &labs = m.labels_;
   cout << "called JUMP\n";
+  auto &mem = m.memory_;
+  cout << *c << endl;
+  cout << mem << endl;
+  auto &labs = m.labels_;
   auto l = GET_LABEL(m, c);
   cout << "to label " << l << endl;
   if (labs.find(l) != labs.end()) {
@@ -269,16 +348,27 @@ ComIt Machine::jump(Machine &m, ComIt &c) {
 }
 
 ComIt Machine::jgtz(Machine &m, ComIt &c) {
+  cout << "called JGTZ\n";
+  auto &mem = m.memory_;
+  cout << *c << endl;
+  cout << mem << endl;
   auto &labs = m.labels_;
+  cout << "mem.at(0) == " << m.memory_.at(0) << endl;
   return (m.memory_.at(0) > 0) ? labs.at(GET_LABEL(m, c)) : ++c;
 }
 
 ComIt Machine::jzero(Machine &m, ComIt &c) {
+  cout << "called JZERO\n";
+  auto &mem = m.memory_;
+  cout << *c << endl;
+  cout << mem << endl;
   auto &labs = m.labels_;
+  cout << "mem.at(0) == " << m.memory_.at(0) << endl;
   return (m.memory_.at(0) == 0) ? labs.at(GET_LABEL(m, c)) : ++c;
 }
 
 ComIt Machine::halt(Machine &m, ComIt &c) {
+  cout << "called HALT\n";
   return m.commands_.end();
 }
 

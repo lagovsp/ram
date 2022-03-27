@@ -39,24 +39,25 @@ using Lab = std::optional<std::string>;
 
 using ComT = std::string;
 using ArgT = std::string;
+using Tape = std::list<Val>;
 
-static const ComT LOAD = "LOAD";
-static const ComT STORE = "STORE";
-static const ComT ADD = "ADD";
-static const ComT SUB = "SUB";
-static const ComT MULT = "MULT";
-static const ComT DIV = "DIV";
-static const ComT READ = "READ";
-static const ComT WRITE = "WRITE";
-static const ComT JUMP = "JUMP";
-static const ComT JGTZ = "JGTZ";
-static const ComT JZERO = "JZERO";
-static const ComT HALT = "HALT";
-
-static const ArgT ADDRESS = "ADDRESS";
-static const ArgT VALUE = "VALUE";
-static const ArgT LABEL = "LABEL";
-static const ArgT ADDRESS_AT_ADDRESS = "ADDRESS_AT_ADDRESS";
+//static const ComT LOAD = "LOAD";
+//static const ComT STORE = "STORE";
+//static const ComT ADD = "ADD";
+//static const ComT SUB = "SUB";
+//static const ComT MULT = "MULT";
+//static const ComT DIV = "DIV";
+//static const ComT READ = "READ";
+//static const ComT WRITE = "WRITE";
+//static const ComT JUMP = "JUMP";
+//static const ComT JGTZ = "JGTZ";
+//static const ComT JZERO = "JZERO";
+//static const ComT HALT = "HALT";
+//
+//static const ArgT ADDRESS = "ADDRESS";
+//static const ArgT VALUE = "VALUE";
+//static const ArgT LABEL = "LABEL";
+//static const ArgT ADDRESS_AT_ADDRESS = "ADDRESS_AT_ADDRESS";
 
 struct Com {
   ComT ctype_; // LOAD, STORE, ADD, etc.
@@ -70,6 +71,9 @@ using ComIt = std::list<Com>::iterator;
 using Labels = std::unordered_map<Lab, ComIt>;
 using Memory = std::unordered_map<Add, Val>;
 
+std::ostream &operator<<(std::ostream &, const Tape &);
+std::ostream &operator<<(std::ostream &, const Memory &);
+
 class Machine {
  public:
   Machine() = default;
@@ -79,9 +83,27 @@ class Machine {
   void set_input(std::initializer_list<Val>);
   const std::list<Com> &commands() const;
 
+  static inline const ComT LOAD = "LOAD";
+  static inline const ComT STORE = "STORE";
+  static inline const ComT ADD = "ADD";
+  static inline const ComT SUB = "SUB";
+  static inline const ComT MULT = "MULT";
+  static inline const ComT DIV = "DIV";
+  static inline const ComT READ = "READ";
+  static inline const ComT WRITE = "WRITE";
+  static inline const ComT JUMP = "JUMP";
+  static inline const ComT JGTZ = "JGTZ";
+  static inline const ComT JZERO = "JZERO";
+  static inline const ComT HALT = "HALT";
+
+  static inline const ArgT ADDRESS = "ADDRESS";
+  static inline const ArgT VALUE = "VALUE";
+  static inline const ArgT LABEL = "LABEL";
+  static inline const ArgT ADDRESS_AT_ADDRESS = "ADDRESS_AT_ADDRESS";
+
  private:
-  std::list<Val> input_;
-  std::list<Val> output_;
+  Tape input_;
+  Tape output_;
 
   Memory memory_;
   Labels labels_;
