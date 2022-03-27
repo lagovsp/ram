@@ -6,18 +6,15 @@ using namespace std;
 
 int main() {
   RAM::Machine machine;
-  machine.setPath("../ram-code.txt");
-  machine.setInput("70010110");
+  machine.set_path("../ram-code.txt");
+  machine.set_input({2, 1, 0}); // make as a cells with values
   auto answer = machine.run();
-  auto &test = machine.commands();
 
-  cout << "{";
-  bool first = true;
+  cout << "Output: {";
+  bool first1 = true;
   for (const auto &pos: answer) {
-	if (!first) {
-	  cout << ", ";
-	}
-	first = false;
+	if (!first1) { cout << ", "; }
+	first1 = false;
 	cout << pos;
   }
   cout << "}";

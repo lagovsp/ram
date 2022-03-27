@@ -10,120 +10,150 @@
 #include <variant>
 #include <unordered_map>
 #include <map>
-#include <unordered_set>
 #include <set>
 #include <functional>
 
+#define MACHINE_STATIC_FUN_DECL(name) static ComIt name(Machine &, ComIt &)
+
+#define ALL_MACHINE_STATIC_FUN_DECL \
+    MACHINE_STATIC_FUN_DECL(load); \
+    MACHINE_STATIC_FUN_DECL(store); \
+    MACHINE_STATIC_FUN_DECL(add); \
+    MACHINE_STATIC_FUN_DECL(sub); \
+    MACHINE_STATIC_FUN_DECL(mult); \
+    MACHINE_STATIC_FUN_DECL(div); \
+    MACHINE_STATIC_FUN_DECL(read); \
+    MACHINE_STATIC_FUN_DECL(write); \
+    MACHINE_STATIC_FUN_DECL(jump); \
+    MACHINE_STATIC_FUN_DECL(jgtz); \
+    MACHINE_STATIC_FUN_DECL(jzero); \
+    MACHINE_STATIC_FUN_DECL(halt)
+
 namespace RAM {
 
-using Addr = int;
+using Add = int;
 using Val = int;
-
-using ComType = std::string;
-using ArgType = std::string;
 
 using Arg = std::variant<int, std::string>;
 using Lab = std::optional<std::string>;
 
-static const ComType LOAD = "LOAD";
-static const ComType STORE = "STORE";
-static const ComType ADD = "ADD";
-static const ComType SUB = "SUB";
-static const ComType MULT = "MULT";
-static const ComType DIV = "DIV";
-static const ComType READ = "READ";
-static const ComType WRITE = "WRITE";
-static const ComType JUMP = "JUMP";
-static const ComType JGTZ = "JGTZ";
-static const ComType JZERO = "JZERO";
-static const ComType HALT = "HALT";
+using ComT = std::string;
+using ArgT = std::string;
 
-static const ArgType ADDRESS = "ADDRESS";
-static const ArgType VALUE = "VALUE";
-static const ArgType ADDRESS_AT_ADDRESS = "ADDRESS_AT_ADDRESS";
+static const ComT LOAD = "LOAD";
+static const ComT STORE = "STORE";
+static const ComT ADD = "ADD";
+static const ComT SUB = "SUB";
+static const ComT MULT = "MULT";
+static const ComT DIV = "DIV";
+static const ComT READ = "READ";
+static const ComT WRITE = "WRITE";
+static const ComT JUMP = "JUMP";
+static const ComT JGTZ = "JGTZ";
+static const ComT JZERO = "JZERO";
+static const ComT HALT = "HALT";
+
+static const ArgT ADDRESS = "ADDRESS";
+static const ArgT VALUE = "VALUE";
+static const ArgT LABEL = "LABEL";
+static const ArgT ADDRESS_AT_ADDRESS = "ADDRESS_AT_ADDRESS";
 
 struct Com {
-  ComType ctype_; // LOAD, STORE, ADD, etc.
-  ArgType atype_; // ADDRESS, VALUE, ADDRESS_AT_ADDRESS
+  ComT ctype_; // LOAD, STORE, ADD, etc.
+  ArgT atype_; // ADDRESS, VALUE, ADDRESS_AT_ADDRESS
   Arg arg_; // 2, FU, etc.
   Lab label_; // no_value, FU, etc.
-
-  friend std::ostream &operator<<(std::ostream &os, const Com &c);
+  friend std::ostream &operator<<(std::ostream &, const Com &);
 };
 
 using ComIt = std::list<Com>::iterator;
+using Labels = std::unordered_map<Lab, ComIt>;
+using Memory = std::unordered_map<Add, Val>;
 
 class Machine {
  public:
   Machine() = default;
   explicit Machine(std::string);
-  std::list<int> run();
-  void setPath(const std::string &);
-  void setInput(const std::string &);
+  std::list<Val> run();
+  void set_path(const std::string &);
+  void set_input(std::initializer_list<Val>);
   const std::list<Com> &commands() const;
 
  private:
-  void processFile(const std::string &);
-  void processCom(std::string line);
-  void addLabel(Lab);
+  std::list<Val> input_;
+  std::list<Val> output_;
 
-  static Com parseCom(std::string line);
-  static ComType parseComType(std::string line);
-  static ArgType parseArgType(std::string line);
-  static Arg parseArgNum(std::string line);
-  static Arg parseArgLab(std::string line);
-  static Lab parseLab(std::string line);
-
-  static int fromValToArg(const Machine &m, const Arg &a);
-  static int fromAddToArg(const Machine &m, const Arg &a);
-  static int fromAddAtAddToArg(const Machine &m, const Arg &a);
-
-  using ArgHandler = std::function<int(const Machine &, const Arg &)>;
-
-  inline static const std::map<ArgType, ArgHandler> ARG_HANDLERS = {
-	  {VALUE, Machine::fromValToArg},
-	  {ADDRESS, Machine::fromAddToArg},
-	  {ADDRESS_AT_ADDRESS, Machine::fromAddAtAddToArg},
-  };
-
-  static ComIt load(Machine &, ComIt &);
-  static ComIt store(Machine &, ComIt &);
-  static ComIt add(Machine &, ComIt &);
-  static ComIt sub(Machine &, ComIt &);
-  static ComIt mult(Machine &, ComIt &);
-  static ComIt div(Machine &, ComIt &);
-  static ComIt read(Machine &, ComIt &);
-  static ComIt write(Machine &, ComIt &);
-  static ComIt jump(Machine &, ComIt &);
-  static ComIt jgtz(Machine &, ComIt &);
-  static ComIt jzero(Machine &, ComIt &);
-  static ComIt halt(Machine &, ComIt &);
-
-  using ComHandler = std::function<ComIt(Machine &, ComIt &)>;
-
-  inline static const std::map<ComType, ComHandler> COM_HANDLERS = {
-	  {LOAD, Machine::load},
-	  {STORE, Machine::store},
-	  {ADD, Machine::add},
-	  {SUB, Machine::sub},
-	  {MULT, Machine::mult},
-	  {DIV, Machine::div},
-	  {READ, Machine::read},
-	  {WRITE, Machine::write},
-	  {JUMP, Machine::jump},
-	  {JGTZ, Machine::jgtz},
-	  {JZERO, Machine::jzero},
-	  {HALT, Machine::halt},
-  };
-
-  std::unordered_map<Addr, Val> memory_;
-
+  Memory memory_;
+  Labels labels_;
   std::string file_;
-  std::list<int> input_;
-  std::list<int> output_;
-
   std::list<Com> commands_;
-  std::unordered_map<Lab, ComIt> labels_;
+
+  void process_file(const std::string &);
+  std::list<Com>::iterator process_command(std::string);
+  void add_label(std::list<Com>::iterator);
+
+  static Com parse_command(std::string);
+  static ComT parse_command_t(std::string line);
+  static ArgT parse_argument_t(std::string line);
+  static Arg parse_argument_numeric(std::string);
+  static Arg parse_argument_labelic(std::string);
+  static Lab parse_label(std::string);
+
+  static Arg value_to_argument(const Machine &, const Arg &);
+  static Arg address_to_argument(const Machine &, const Arg &);
+  static Arg address_to_address_to_argument(const Machine &, const Arg &);
+  static Arg label_to_argument(const Machine &, const Arg &);
+
+  using ArgHand = std::function<Arg(const Machine &, const Arg &)>;
+
+  static inline const std::map<ArgT, ArgHand> FROM_HAND = {
+	  {ADDRESS, address_to_argument},
+	  {VALUE, value_to_argument},
+	  {ADDRESS_AT_ADDRESS, address_to_address_to_argument},
+  };
+
+  static inline const std::map<ArgT, ArgHand> TO_HAND = {
+	  {ADDRESS, value_to_argument},
+	  {VALUE, value_to_argument},
+	  {ADDRESS_AT_ADDRESS, address_to_address_to_argument},
+  };
+
+  static inline const std::map<ArgT, ArgHand> MOVE_HAND = {
+	  {LABEL, label_to_argument},
+  };
+
+  static inline const std::map<ComT, std::map<ArgT, ArgHand>> GROUPS = {
+	  {LOAD, FROM_HAND},
+	  {STORE, TO_HAND},
+	  {ADD, FROM_HAND},
+	  {SUB, FROM_HAND},
+	  {MULT, FROM_HAND},
+	  {DIV, FROM_HAND},
+	  {READ, TO_HAND},
+	  {WRITE, FROM_HAND},
+	  {JUMP, MOVE_HAND},
+	  {JGTZ, MOVE_HAND},
+	  {JZERO, MOVE_HAND},
+	  {HALT, MOVE_HAND},
+  };
+
+  ALL_MACHINE_STATIC_FUN_DECL;
+  using ComHand = std::function<ComIt(Machine &, ComIt &)>;
+
+  static inline const std::map<ComT, ComHand> COM_HAND = {
+	  {LOAD, load},
+	  {STORE, store},
+	  {ADD, add},
+	  {SUB, sub},
+	  {MULT, mult},
+	  {DIV, div},
+	  {READ, read},
+	  {WRITE, write},
+	  {JUMP, jump},
+	  {JGTZ, jgtz},
+	  {JZERO, jzero},
+	  {HALT, halt},
+  };
 };
 
 }
