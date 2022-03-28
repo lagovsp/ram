@@ -8,12 +8,14 @@ using namespace RAM;
 int main() {
   Machine m;
   m.set_path("../ram-count-0-1.txt");
-  m.set_input({6, 1, 0, 1, 0, 0, 1});
-  m.be_verbose(false);
-  m.set_ostream(cout);
+  m.set_input({4, 0, 1, 1, 0,});
+  m.be_verbose(true);
+
+  ofstream os("../output.txt");
+  m.set_ostream(os);
 
   auto output = m.run();
-  cout << "Output: " << output;
+  os << "Output: " << output;
 
   return 0;
 }
