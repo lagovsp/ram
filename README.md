@@ -39,9 +39,9 @@ cout << "Output: " << output;
 ## Example
 
 *Task:*
-The program receives an `n + 1` values. The first value is equal to `n`. Every single other value is either `0` or `1`.
+The program receives `n + 1` values. The first value is `n`. Among other values, every single one is either `0` or `1`.
 Say, which value prevails among the given `n` values. In case, there are more `1` than `0`, print `1`. If `0` -
-print `0`. if the values occur the same number of times, print `10`.
+print `0`. if the values occur the same number of times, the output is to be two-character `10`.
 
 ### RAM-code sample
 
