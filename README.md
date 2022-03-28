@@ -102,33 +102,26 @@ HALT()
 
 ```cpp
 m.set_input({6, 1, 0, 1, 0, 0, 1});
-
-File processed
-Commands 39
 Output: { 1, 0 }
 ```
 
 ```cpp
 m.set_input({6, 1, 0, 1, 0, 0, 0});
-
-File processed
-Commands 39
 Output: { 0 }
 ```
 
 ```cpp
 m.set_input({3, 1, 0, 1});
-
-File processed
-Commands 39
 Output: { 1 }
 ```
 
 ```cpp
-m.set_input({0});
+m.set_input({2, 0, 1});
+Output: { 1, 0 }
+```
 
-File processed
-Commands 39
+```cpp
+m.set_input({0});
 Output: { 1, 0 }
 ```
 

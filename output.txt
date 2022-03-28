@@ -1,5 +1,6 @@
-File processed
+File processed ../ram-count-0-1.txt
 Commands recognized 39
+In tape { 2, 0, 1 }
 Running...
 Called LOAD 0 (=) 
 Memory before	 {  }
@@ -130,5 +131,6 @@ Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called HALT  (<>) 
 Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Program finished
 Commands executed 43
-Out tape: { 1, 0 }
+Out tape { 1, 0 }

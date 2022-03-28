@@ -24,6 +24,9 @@ static const string RUNNING_MSG = "Running...";
 static const string CALLED_MSG = "Called";
 static const string MEMORY_BEFORE_MSG = "Memory before";
 static const string MEMORY_AFTER_MSG = "Memory after";
+static const string OUT_TAPE_MSG = "Out tape";
+static const string IN_TAPE_MSG = "In tape";
+static const string FINISHED_MSG = "Program finished";
 
 #define GET_ARG(m, c)                                                        \
     RAM::Machine::GROUPS.at((c)->ctype_).at((c)->atype_)((m), (c)->arg_)
@@ -150,18 +153,26 @@ Tape Machine::run() {
   process_file();
   auto it = commands_.begin();
   uint64_t executed = 0;
-  if (verbose_) { *out_ << RUNNING_MSG << endl; }
+  *out_ << IN_TAPE_MSG << " " << input_ << endl;
+  if (verbose_) {
+	*out_ << RUNNING_MSG << endl;
+  }
   while (it != commands_.cend()) {
 	auto f = COM_HAND.at(it->ctype_);
-	if (verbose_) { VERBOSE_INFO(*this, it); }
+	if (verbose_) {
+	  VERBOSE_INFO(*this, it);
+	}
 	++executed;
 	it = f(*this, it);
-	if (verbose_) { TELL_MEMORY(*this, MEMORY_AFTER_MSG); }
+	if (verbose_) {
+	  TELL_MEMORY(*this, MEMORY_AFTER_MSG);
+	}
   }
   if (verbose_) {
+	*out_ << FINISHED_MSG << endl;
 	*out_ << COMMANDS_EXECUTED_MSG << " " << executed << endl;
   }
-  *out_ << "Out tape: " << output_ << endl;
+  *out_ << OUT_TAPE_MSG << " " << output_ << endl;
   return output_;
 }
 
@@ -199,8 +210,8 @@ void Machine::process_file() {
 	  add_label(inserted);
 	}
   }
+  *out_ << FILE_PROCESSED_MSG << " " << file_.value() << endl;
   if (verbose_) {
-	*out_ << FILE_PROCESSED_MSG << endl;
 	*out_ << COMMANDS_RECOGNIZED_MSG << " " << commands_.size() << endl;
   }
 }

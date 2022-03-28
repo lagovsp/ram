@@ -15,7 +15,6 @@ int main() {
   m.set_ostream(ofs);
 
   auto output = m.run();
-  cout << "Output: " << output;
 
   return 0;
 }
