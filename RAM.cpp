@@ -31,13 +31,6 @@ static const string MEMORY_AFTER_MSG = "Memory after";
 #define GET_VALUE(m, c) get<int>(GET_ARG((m), (c)))
 #define GET_LABEL(m, c) get<string>(GET_ARG((m), (c)))
 
-#define IF_VERBOSE_CALL_MACRO(m, macro)                                     \
-    do {                                                                    \
-        if ((m).verbose_) {                                                 \
-            macro;                                                          \
-        }                                                                   \
-    } while(false)
-
 #define TELL_MEMORY(m, status_msg)                                          \
     *(m).out_ << (status_msg) << "\t " << (m).memory_ << endl
 
