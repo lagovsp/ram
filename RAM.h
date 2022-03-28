@@ -46,7 +46,6 @@ struct Com {
   ArgT atype_; // ADDRESS, VALUE, ADDRESS_AT_ADDRESS
   Arg arg_; // 2, FU, etc.
   Lab label_; // no_value, FU, etc.
-  friend std::ostream &operator<<(std::ostream &, const Com &);
 };
 
 using Program = std::list<Com>;

@@ -9,7 +9,7 @@ int main() {
   Machine machine;
   machine.set_path("../ram-code.txt");
   machine.set_input({2, 1, 0});
-  machine.be_verbose(false);
+  machine.be_verbose(true);
   machine.set_ostream(cout);
 
   auto output = machine.run();

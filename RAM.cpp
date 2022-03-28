@@ -1,3 +1,5 @@
+// Copyright 2022 Sergey Lagov lagovsp@gmail.com
+
 #include "RAM.h"
 
 using namespace std;
@@ -10,6 +12,7 @@ static const char EQ = '=';
 static const char PTR = '*';
 
 static const string LABEL_USED_ERROR = "label already used";
+static const string LABEL_NOT_FOUND_ERROR = "label not found";
 static const string BAD_COMMAND_ERROR = "bad command";
 static const string HANDLER_NOT_FOUND = "handler not found";
 static const string PATH_NOT_SET_ERROR = "no file path";
@@ -17,27 +20,32 @@ static const string PATH_NOT_SET_ERROR = "no file path";
 static const string FILE_PROCESSED_MSG = "File processed";
 static const string COMMANDS_MSG = "Commands";
 static const string CALLED_MSG = "Called";
-static const string MEMORY_MSG = "Memory";
+static const string MEMORY_BEFORE_MSG = "Memory before";
+static const string MEMORY_AFTER_MSG = "Memory after";
 
-static const string SEPARATOR = "----------------------------------------";
-
-#define GET_ARG(m, c) \
+#define GET_ARG(m, c)                                                        \
     RAM::Machine::GROUPS.at((c)->ctype_).at((c)->atype_)((m), (c)->arg_)
 
 #define GET_VALUE(m, c) get<int>(GET_ARG((m), (c)))
 #define GET_LABEL(m, c) get<string>(GET_ARG((m), (c)))
 
-#define ON_CALLED_INFO(c) \
-    do{                      \
-    cout << CALLED_MSG << " " << (c)->ctype_         \
-    << " " << (c)->arg_                              \
-    << " " << (c)->atype_                            \
-    << " " << (c)->label_.value_or("")               \
-    << endl; while(false)
+#define IF_VERBOSE_CALL_MACRO(m, macro) \
+    do {                                                                    \
+        if ((m).verbose_) {          \
+            macro;\
+        }                                                    \
+    } while(false)
 
-#define TELL_MEMORY(m) cout << MEMORY_MSG << (m).memory_
+#define TELL_MEMORY(m, status_msg)     \
+    *(m).out_ << (status_msg) << "\t " << (m).memory_ << endl
 
-//#define INFO(var) #var << "=" << var
+#define VERBOSE_INFO(m, c)                                                    \
+    *(m).out_ << CALLED_MSG << " " << (c)->ctype_                        \
+    << " " << (c)->arg_                                                \
+    << " " << (c)->atype_                                            \
+    << " " << (c)->label_.value_or("")                                \
+    << endl;                                                            \
+    TELL_MEMORY((m), MEMORY_BEFORE_MSG)
 
 ostream &operator<<(ostream &os, const Arg &a) {
   if (a.index() == 0) { os << get<int>(a); }
@@ -45,33 +53,27 @@ ostream &operator<<(ostream &os, const Arg &a) {
   return os;
 }
 
-//ostream &operator<<(ostream &os, const Com &c) {
-//  os << INFO(c.ctype_) << " " << INFO(c.atype_) << " " << INFO(c.arg_) << " "
-//	 << INFO(c.label_.value_or("__nv"));
-//  return os;
-//}
-
 ostream &operator<<(ostream &os, const Tape &c) {
-  os << "{";
+  os << "{ ";
   bool first = true;
   for (const auto &pos: c) {
 	if (!first) { os << ", "; }
 	first = false;
 	os << pos;
   }
-  os << "}";
+  os << " }";
   return os;
 }
 
 ostream &operator<<(ostream &os, const Memory &m) {
-  os << "{";
+  os << "{ ";
   bool first = true;
   for (const auto &[key, value]: m) {
 	if (!first) { os << ", "; }
 	first = false;
-	os << "[" << key << "] -> " << value;
+	os << "(" << key << ")->" << value;
   }
-  os << "}";
+  os << " }";
   return os;
 }
 
@@ -96,7 +98,6 @@ Arg Machine::address_to_argument(const Machine &m, const Arg &a) {
 }
 
 Arg Machine::address_to_address_to_argument(const Machine &m, const Arg &a) {
-//  return m.memory_.at(m.memory_.at(get<int>(a)));
   return address_to_argument(m, address_to_argument(m, a));
 }
 
@@ -158,11 +159,12 @@ Tape Machine::run() {
   while (it != commands_.cend()) {
 	auto f = COM_HAND.find(it->ctype_);
 	if (f != COM_HAND.end()) {
+	  IF_VERBOSE_CALL_MACRO(*this, VERBOSE_INFO(*this, it));
 	  it = f->second(*this, it);
+	  IF_VERBOSE_CALL_MACRO(*this, TELL_MEMORY(*this, MEMORY_AFTER_MSG));
 	} else {
 	  throw runtime_error(HANDLER_NOT_FOUND);
 	}
-	cout << endl;
   }
   return output_;
 }
@@ -216,165 +218,88 @@ void Machine::add_label(list<Com>::iterator it) {
 }
 
 ComIt Machine::load(Machine &m, ComIt &c) {
-  if (m.verbose_) {
-	ON_CALLED_INFO(c);
-	TELL_MEMORY(m);
-  }
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
-  auto i = GET_VALUE(m, c);
-//  cout << "i == " << i << endl;
-  mem[0] = i;
-//  cout << "mem.at(0) == " << mem.at(0);
-  cout << mem << endl;
+  m.memory_[0] = GET_VALUE(m, c);
   return ++c;
 }
 
 ComIt Machine::store(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
-  auto buf = mem.at(0);
-  auto i = GET_VALUE(m, c);
-//  cout << "i == " << i << endl;
-//  cout << "gonna store mem.at(0) == " << buf << " to i" << endl;
-  mem[GET_VALUE(m, c)] = buf;
-//  cout << "at mem.at(i) == " << mem.at(i);
-  cout << mem << endl;
+  auto buf = m.memory_.at(0);
+  m.memory_[GET_VALUE(m, c)] = buf;
   return ++c;
 }
 
 ComIt Machine::add(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
-  auto v = GET_VALUE(m, c);
-//  cout << "mem.at(0) == " << mem.at(0) << endl;
-//  cout << "i == " << i << endl;
-//  cout << "mem.at(i) == " << mem.at(i);
-  mem[0] += v;
-//  cout << "mem.at(0) == " << mem.at(0) << endl;
-  cout << mem << endl;
+  auto buf = GET_VALUE(m, c);
+  m.memory_[0] += buf;
   return ++c;
 }
 
 ComIt Machine::sub(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
-  auto v = GET_VALUE(m, c);
-//  cout << "mem.at(0) == " << mem.at(0) << endl;
-//  cout << "i == " << i << endl;
-//  cout << "mem.at(i) == " << mem.at(i);
-  mem[0] -= v;
-//  cout << "mem.at(0) == " << mem.at(0) << endl;
-  cout << mem << endl;
+  auto buf = GET_VALUE(m, c);
+  m.memory_[0] -= buf;
   return ++c;
 }
 
 ComIt Machine::mult(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
-  auto v = GET_VALUE(m, c);
-//  cout << "mem.at(0) == " << mem.at(0) << endl;
-//  cout << "i == " << i << endl;
-//  cout << "mem.at(i) == " << mem.at(i);
-  mem[0] *= v;
-//  cout << "mem.at(0) == " << mem.at(0) << endl;
-  cout << mem << endl;
+  auto buf = GET_VALUE(m, c);
+  m.memory_[0] *= buf;
   return ++c;
 }
 
 ComIt Machine::div(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
-  auto v = GET_VALUE(m, c);
-//  cout << "mem.at(0) == " << mem.at(0) << endl;
-//  cout << "i == " << i << endl;
-//  cout << "mem.at(i) == " << mem.at(i);
-  mem[0] /= v;
-//  cout << "mem.at(0) == " << mem.at(0) << endl;
-  cout << mem << endl;
+  auto buf = GET_VALUE(m, c);
+  m.memory_[0] /= buf;
   return ++c;
 }
 
 ComIt Machine::read(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
-  cout << "input: " << m.input_ << endl;
-  auto i = GET_VALUE(m, c);
-//  cout << "i == " << i << endl;
-  mem[GET_VALUE(m, c)] = m.input_.front();
-//  cout << "front is " << m.input_.front() << endl;
+  m.memory_[GET_VALUE(m, c)] = m.input_.front();
   m.input_.pop_front();
-  cout << "front popped" << endl;
-//  cout << "mem.at(i) == " << mem.at(i);
-  cout << mem << endl;
-  cout << "input: " << m.input_ << endl;
   return ++c;
 }
 
 ComIt Machine::write(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
-  cout << "output: " << m.output_ << endl;
-  auto letter = GET_VALUE(m, c);
-  cout << "will write '" << letter << "'" << endl;
   m.output_.push_back(GET_VALUE(m, c));
-  cout << "full out tape: " << m.output_ << endl;
   return ++c;
 }
 
 ComIt Machine::jump(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
   auto &labs = m.labels_;
   auto l = GET_LABEL(m, c);
-  cout << "to label " << l << endl;
-  if (labs.find(l) != labs.end()) {
-	cout << "FOUND";
-  } else {
-	cout << "NOT FOUND";
+  auto found = labs.find(l);
+  if (found == labs.end()) {
+	throw runtime_error(LABEL_NOT_FOUND_ERROR);
   }
-  return labs.at(l);
+  return found->second;
 }
 
 ComIt Machine::jgtz(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
+  if (m.memory_.at(0) == 0) {
+	return ++c;
+  }
   auto &labs = m.labels_;
-  cout << "mem.at(0) == " << m.memory_.at(0) << endl;
-  return (m.memory_.at(0) > 0) ? labs.at(GET_LABEL(m, c)) : ++c;
+  auto l = GET_LABEL(m, c);
+  auto found = labs.find(l);
+  if (found == labs.end()) {
+	throw runtime_error(LABEL_NOT_FOUND_ERROR);
+  }
+  return found->second;
 }
 
 ComIt Machine::jzero(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
-  auto &mem = m.memory_;
-//  cout << *c << endl;
-  cout << mem << endl;
+  if (m.memory_.at(0) != 0) {
+	return ++c;
+  }
   auto &labs = m.labels_;
-  cout << "mem.at(0) == " << m.memory_.at(0) << endl;
-  return (m.memory_.at(0) == 0) ? labs.at(GET_LABEL(m, c)) : ++c;
+  auto l = GET_LABEL(m, c);
+  auto found = labs.find(l);
+  if (found == labs.end()) {
+	throw runtime_error(LABEL_NOT_FOUND_ERROR);
+  }
+  return found->second;
 }
 
 ComIt Machine::halt(Machine &m, ComIt &c) {
-  ON_CALLED_INFO(c);
   return m.commands_.end();
 }
 
