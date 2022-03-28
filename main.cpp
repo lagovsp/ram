@@ -3,21 +3,17 @@
 #include "RAM.h"
 
 using namespace std;
+using namespace RAM;
 
 int main() {
-  RAM::Machine machine;
+  Machine machine;
   machine.set_path("../ram-code.txt");
-  machine.set_input({2, 1, 0}); // make as a cells with values
-  auto answer = machine.run();
+  machine.set_input({2, 1, 0});
+  machine.be_verbose(false);
+  machine.set_ostream(cout);
 
-  cout << "Output: {";
-  bool first1 = true;
-  for (const auto &pos: answer) {
-	if (!first1) { cout << ", "; }
-	first1 = false;
-	cout << pos;
-  }
-  cout << "}";
+  auto output = machine.run();
+  cout << "Output: " << output;
 
   return 0;
 }

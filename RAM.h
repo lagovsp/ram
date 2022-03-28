@@ -36,28 +36,10 @@ using Val = int;
 
 using Arg = std::variant<int, std::string>;
 using Lab = std::optional<std::string>;
+using Path = std::optional<std::string>;
 
 using ComT = std::string;
 using ArgT = std::string;
-using Tape = std::list<Val>;
-
-//static const ComT LOAD = "LOAD";
-//static const ComT STORE = "STORE";
-//static const ComT ADD = "ADD";
-//static const ComT SUB = "SUB";
-//static const ComT MULT = "MULT";
-//static const ComT DIV = "DIV";
-//static const ComT READ = "READ";
-//static const ComT WRITE = "WRITE";
-//static const ComT JUMP = "JUMP";
-//static const ComT JGTZ = "JGTZ";
-//static const ComT JZERO = "JZERO";
-//static const ComT HALT = "HALT";
-//
-//static const ArgT ADDRESS = "ADDRESS";
-//static const ArgT VALUE = "VALUE";
-//static const ArgT LABEL = "LABEL";
-//static const ArgT ADDRESS_AT_ADDRESS = "ADDRESS_AT_ADDRESS";
 
 struct Com {
   ComT ctype_; // LOAD, STORE, ADD, etc.
@@ -67,7 +49,10 @@ struct Com {
   friend std::ostream &operator<<(std::ostream &, const Com &);
 };
 
-using ComIt = std::list<Com>::iterator;
+using Program = std::list<Com>;
+using ComIt = Program::iterator;
+
+using Tape = std::list<Val>;
 using Labels = std::unordered_map<Lab, ComIt>;
 using Memory = std::unordered_map<Add, Val>;
 
@@ -77,11 +62,12 @@ std::ostream &operator<<(std::ostream &, const Memory &);
 class Machine {
  public:
   Machine() = default;
-  explicit Machine(std::string);
-  std::list<Val> run();
+  explicit Machine(const std::string &);
+  Tape run();
   void set_path(const std::string &);
   void set_input(std::initializer_list<Val>);
-  const std::list<Com> &commands() const;
+  void set_ostream(std::ostream &);
+  void be_verbose(bool);
 
   static inline const ComT LOAD = "LOAD";
   static inline const ComT STORE = "STORE";
@@ -96,30 +82,32 @@ class Machine {
   static inline const ComT JZERO = "JZERO";
   static inline const ComT HALT = "HALT";
 
-  static inline const ArgT ADDRESS = "ADDRESS";
-  static inline const ArgT VALUE = "VALUE";
-  static inline const ArgT LABEL = "LABEL";
-  static inline const ArgT ADDRESS_AT_ADDRESS = "ADDRESS_AT_ADDRESS";
+  static inline const ArgT ADDRESS = "()";
+  static inline const ArgT VALUE = "(=)";
+  static inline const ArgT ADDRESS_AT_ADDRESS = "(*)";
+  static inline const ArgT LABEL = "(<>)";
 
  private:
+  Path file_;
   Tape input_;
   Tape output_;
-
   Memory memory_;
   Labels labels_;
-  std::string file_;
-  std::list<Com> commands_;
+  Program commands_;
 
-  void process_file(const std::string &);
-  std::list<Com>::iterator process_command(std::string);
-  void add_label(std::list<Com>::iterator);
+  bool verbose_ = false;
+  std::ostream *out_{&std::cout};
 
-  static Com parse_command(std::string);
-  static ComT parse_command_t(std::string line);
-  static ArgT parse_argument_t(std::string line);
-  static Arg parse_argument_numeric(std::string);
-  static Arg parse_argument_labelic(std::string);
-  static Lab parse_label(std::string);
+  void process_file();
+  void add_label(ComIt);
+  ComIt process_command(const std::string &);
+
+  static Com parse_command(const std::string &);
+  static ComT parse_command_t(const std::string &);
+  static ArgT parse_argument_t(const std::string &);
+  static Arg parse_argument_numeric(const std::string &);
+  static Arg parse_argument_label(const std::string &);
+  static Lab parse_label(const std::string &);
 
   static Arg value_to_argument(const Machine &, const Arg &);
   static Arg address_to_argument(const Machine &, const Arg &);
