@@ -4,20 +4,20 @@
 
 1. Setting up
 
-```
+```cpp
 #include "RAM.h"
 using namespace RAM;
 ```
 
 2. Create an instance of RAM
 
-```
+```cpp
 Machine m;
 ```
 
 3. Adjust it
 
-```
+```cpp
 m.set_path("ram-count-0-1.txt"); // set the source RAM-code path
 m.set_input({6, 1, 0, 1, 0, 0, 1}); // enter the input data
 m.be_verbose(false); // to be verbose while executing (false by default)
@@ -26,13 +26,13 @@ m.set_ostream(cout); // customize the out stream (cout by default)
 
 4. Run the code
 
-```
+```cpp
 auto output = m.run();
 ```
 
 5. See the output
 
-```
+```cpp
 cout << "Output: " << output;
 ```
 
@@ -97,7 +97,7 @@ HALT()
 
 ### Outputs
 
-```
+```cpp
 m.set_input({6, 1, 0, 1, 0, 0, 1});
 
 File processed
@@ -105,7 +105,7 @@ Commands 39
 Output: { 1, 0 }
 ```
 
-```
+```cpp
 m.set_input({6, 1, 0, 1, 0, 0, 0});
 
 File processed
@@ -113,7 +113,7 @@ Commands 39
 Output: { 0 }
 ```
 
-```
+```cpp
 m.set_input({3, 1, 0, 1});
 
 File processed
@@ -121,10 +121,12 @@ Commands 39
 Output: { 1 }
 ```
 
-```
+```cpp
 m.set_input({0});
 
 File processed
 Commands 39
 Output: { 1, 0 }
 ```
+
+###### Copyright 2022 Sergey Lagov lagovsp@gmail.com
