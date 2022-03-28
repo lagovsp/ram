@@ -35,5 +35,5 @@ cmake-build-release/
 
 # Executables
 *.exe
-*.out_
+*.out
 *.app
