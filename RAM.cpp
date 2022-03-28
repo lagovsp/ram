@@ -14,8 +14,8 @@ static const char PTR = '*';
 static const string LABEL_USED_ERROR = "label already used";
 static const string LABEL_NOT_FOUND_ERROR = "label not found";
 static const string BAD_COMMAND_ERROR = "bad command";
-static const string HANDLER_NOT_FOUND = "handler not found";
 static const string PATH_NOT_SET_ERROR = "no file path";
+static const string FILE_NOT_FOUND_ERROR = "file not found";
 
 static const string FILE_PROCESSED_MSG = "File processed";
 static const string COMMANDS_MSG = "Commands";
@@ -29,22 +29,22 @@ static const string MEMORY_AFTER_MSG = "Memory after";
 #define GET_VALUE(m, c) get<int>(GET_ARG((m), (c)))
 #define GET_LABEL(m, c) get<string>(GET_ARG((m), (c)))
 
-#define IF_VERBOSE_CALL_MACRO(m, macro) \
+#define IF_VERBOSE_CALL_MACRO(m, macro)                                     \
     do {                                                                    \
-        if ((m).verbose_) {          \
-            macro;\
-        }                                                    \
+        if ((m).verbose_) {                                                 \
+            macro;                                                          \
+        }                                                                   \
     } while(false)
 
-#define TELL_MEMORY(m, status_msg)     \
+#define TELL_MEMORY(m, status_msg)                                          \
     *(m).out_ << (status_msg) << "\t " << (m).memory_ << endl
 
-#define VERBOSE_INFO(m, c)                                                    \
-    *(m).out_ << CALLED_MSG << " " << (c)->ctype_                        \
-    << " " << (c)->arg_                                                \
-    << " " << (c)->atype_                                            \
-    << " " << (c)->label_.value_or("")                                \
-    << endl;                                                            \
+#define VERBOSE_INFO(m, c)                                                  \
+    *(m).out_ << CALLED_MSG << " " << (c)->ctype_                           \
+    << " " << (c)->arg_                                                     \
+    << " " << (c)->atype_                                                   \
+    << " " << (c)->label_.value_or("")                                      \
+    << endl;                                                                \
     TELL_MEMORY((m), MEMORY_BEFORE_MSG)
 
 ostream &operator<<(ostream &os, const Arg &a) {
@@ -77,14 +77,14 @@ ostream &operator<<(ostream &os, const Memory &m) {
   return os;
 }
 
-static const set<ArgT> LAB_COMS = {
+static const set<ArgT> LABEL_COMS = {
 	Machine::JUMP,
 	Machine::JGTZ,
 	Machine::JZERO,
 	Machine::HALT,
 };
 
-static const map<char, ArgT> CHARS_TYPES = {
+static const map<char, ArgT> ARG_TYPES = {
 	{EQ, Machine::VALUE},
 	{PTR, Machine::ADDRESS_AT_ADDRESS},
 };
@@ -107,9 +107,9 @@ Arg Machine::label_to_argument(const Machine &m, const Arg &a) {
 
 Com Machine::parse_command(const string &line) {
   auto ct = parse_command_t(line);
-  auto at = (LAB_COMS.contains(ct)) ? LABEL : parse_argument_t(line);
+  auto at = (LABEL_COMS.contains(ct)) ? LABEL : parse_argument_t(line);
   auto l = parse_label(line);
-  auto a = (LAB_COMS.contains(ct)) ?
+  auto a = (LABEL_COMS.contains(ct)) ?
 		   parse_argument_label(line) :
 		   parse_argument_numeric(line);
   return {move(ct), move(at), move(a), move(l)};
@@ -124,14 +124,14 @@ ComT Machine::parse_command_t(const string &line) {
 }
 
 ArgT Machine::parse_argument_t(const string &line) {
-  auto it = CHARS_TYPES.find(line.at(line.find(LP) + 1));
-  return (it != CHARS_TYPES.cend()) ? it->second : ADDRESS;
+  auto it = ARG_TYPES.find(line.at(line.find(LP) + 1));
+  return (it != ARG_TYPES.cend()) ? it->second : ADDRESS;
 }
 
 Arg Machine::parse_argument_numeric(const string &line) {
   size_t lp = line.find(LP);
   string arg = line.substr(lp + 1, line.find(RP) - lp - 1);
-  if (CHARS_TYPES.contains(arg.front())) {
+  if (ARG_TYPES.contains(arg.front())) {
 	arg.erase(0, 1);
   }
   return stoi(arg);
@@ -151,20 +151,14 @@ Lab Machine::parse_label(const string &line) {
   return ans;
 }
 
-Machine::Machine(const string &path) : file_(path) {}
-
 Tape Machine::run() {
   process_file();
   auto it = commands_.begin();
   while (it != commands_.cend()) {
-	auto f = COM_HAND.find(it->ctype_);
-	if (f != COM_HAND.end()) {
-	  IF_VERBOSE_CALL_MACRO(*this, VERBOSE_INFO(*this, it));
-	  it = f->second(*this, it);
-	  IF_VERBOSE_CALL_MACRO(*this, TELL_MEMORY(*this, MEMORY_AFTER_MSG));
-	} else {
-	  throw runtime_error(HANDLER_NOT_FOUND);
-	}
+	auto f = COM_HAND.at(it->ctype_);
+	IF_VERBOSE_CALL_MACRO(*this, VERBOSE_INFO(*this, it));
+	it = f(*this, it);
+	IF_VERBOSE_CALL_MACRO(*this, TELL_MEMORY(*this, MEMORY_AFTER_MSG));
   }
   return output_;
 }
@@ -173,7 +167,7 @@ void Machine::set_path(const string &path) {
   file_ = path;
 }
 
-void Machine::set_input(std::initializer_list<Val> vals) {
+void Machine::set_input(initializer_list<Val> vals) {
   input_.assign(vals);
 }
 
@@ -181,7 +175,7 @@ void Machine::be_verbose(bool flag) {
   verbose_ = flag;
 }
 
-void Machine::set_ostream(std::ostream &os) {
+void Machine::set_ostream(ostream &os) {
   out_ = &os;
 }
 
@@ -190,6 +184,9 @@ void Machine::process_file() {
 	throw runtime_error(PATH_NOT_SET_ERROR);
   }
   ifstream is(file_.value());
+  if (!is) {
+	throw runtime_error(FILE_NOT_FOUND_ERROR);
+  }
   string buffer;
   while (getline(is, buffer)) {
 	if (buffer.empty()) {
@@ -202,7 +199,6 @@ void Machine::process_file() {
   }
   cout << FILE_PROCESSED_MSG << endl;
   cout << COMMANDS_MSG << " " << commands_.size() << endl;
-
 }
 
 ComIt Machine::process_command(const string &line) {
@@ -210,7 +206,7 @@ ComIt Machine::process_command(const string &line) {
   return commands_.insert(commands_.end(), move(c));
 }
 
-void Machine::add_label(list<Com>::iterator it) {
+void Machine::add_label(ComIt it) {
   if (labels_.contains(it->label_.value())) {
 	throw runtime_error(LABEL_USED_ERROR);
   }

@@ -6,13 +6,13 @@ using namespace std;
 using namespace RAM;
 
 int main() {
-  Machine machine;
-  machine.set_path("../ram-code.txt");
-  machine.set_input({2, 1, 0});
-  machine.be_verbose(true);
-  machine.set_ostream(cout);
+  Machine m;
+  m.set_path("../ram-count-0-1.txt");
+  m.set_input({6, 1, 0, 1, 0, 0, 1});
+  m.be_verbose(false);
+  m.set_ostream(cout);
 
-  auto output = machine.run();
+  auto output = m.run();
   cout << "Output: " << output;
 
   return 0;

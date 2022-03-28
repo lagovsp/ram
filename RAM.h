@@ -42,10 +42,10 @@ using ComT = std::string;
 using ArgT = std::string;
 
 struct Com {
-  ComT ctype_; // LOAD, STORE, ADD, etc.
+  ComT ctype_; // LOAD, STORE, ADD ...
   ArgT atype_; // ADDRESS, VALUE, ADDRESS_AT_ADDRESS
-  Arg arg_; // 2, FU, etc.
-  Lab label_; // no_value, FU, etc.
+  Arg arg_; // 2, FU ...
+  Lab label_; // this command label if present
 };
 
 using Program = std::list<Com>;
@@ -61,7 +61,6 @@ std::ostream &operator<<(std::ostream &, const Memory &);
 class Machine {
  public:
   Machine() = default;
-  explicit Machine(const std::string &);
   Tape run();
   void set_path(const std::string &);
   void set_input(std::initializer_list<Val>);
