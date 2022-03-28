@@ -1,3 +1,6 @@
+File processed
+Commands recognized 39
+Running...
 Called LOAD 0 (=) 
 Memory before	 {  }
 Memory after	 { (0)->0 }
@@ -9,191 +12,123 @@ Memory before	 { (2)->0, (0)->0 }
 Memory after	 { (3)->0, (2)->0, (0)->0 }
 Called READ 1 () 
 Memory before	 { (3)->0, (2)->0, (0)->0 }
-Memory after	 { (1)->4, (3)->0, (2)->0, (0)->0 }
+Memory after	 { (1)->2, (3)->0, (2)->0, (0)->0 }
 Called LOAD 1 () 
-Memory before	 { (1)->4, (3)->0, (2)->0, (0)->0 }
-Memory after	 { (1)->4, (3)->0, (2)->0, (0)->4 }
+Memory before	 { (1)->2, (3)->0, (2)->0, (0)->0 }
+Memory after	 { (1)->2, (3)->0, (2)->0, (0)->2 }
 Called JZERO EQ (<>) 
-Memory before	 { (1)->4, (3)->0, (2)->0, (0)->4 }
-Memory after	 { (1)->4, (3)->0, (2)->0, (0)->4 }
+Memory before	 { (1)->2, (3)->0, (2)->0, (0)->2 }
+Memory after	 { (1)->2, (3)->0, (2)->0, (0)->2 }
 Called JZERO A (<>) R
-Memory before	 { (1)->4, (3)->0, (2)->0, (0)->4 }
-Memory after	 { (1)->4, (3)->0, (2)->0, (0)->4 }
+Memory before	 { (1)->2, (3)->0, (2)->0, (0)->2 }
+Memory after	 { (1)->2, (3)->0, (2)->0, (0)->2 }
 Called READ 0 () 
-Memory before	 { (1)->4, (3)->0, (2)->0, (0)->4 }
-Memory after	 { (1)->4, (3)->0, (2)->0, (0)->0 }
+Memory before	 { (1)->2, (3)->0, (2)->0, (0)->2 }
+Memory after	 { (1)->2, (3)->0, (2)->0, (0)->0 }
 Called JGTZ U (<>) 
-Memory before	 { (1)->4, (3)->0, (2)->0, (0)->0 }
-Memory after	 { (1)->4, (3)->0, (2)->0, (0)->0 }
+Memory before	 { (1)->2, (3)->0, (2)->0, (0)->0 }
+Memory after	 { (1)->2, (3)->0, (2)->0, (0)->0 }
 Called JUMP Z (<>) 
-Memory before	 { (1)->4, (3)->0, (2)->0, (0)->0 }
-Memory after	 { (1)->4, (3)->0, (2)->0, (0)->0 }
+Memory before	 { (1)->2, (3)->0, (2)->0, (0)->0 }
+Memory after	 { (1)->2, (3)->0, (2)->0, (0)->0 }
 Called LOAD 2 () Z
-Memory before	 { (1)->4, (3)->0, (2)->0, (0)->0 }
-Memory after	 { (1)->4, (3)->0, (2)->0, (0)->0 }
+Memory before	 { (1)->2, (3)->0, (2)->0, (0)->0 }
+Memory after	 { (1)->2, (3)->0, (2)->0, (0)->0 }
 Called ADD 1 (=) 
-Memory before	 { (1)->4, (3)->0, (2)->0, (0)->0 }
-Memory after	 { (1)->4, (3)->0, (2)->0, (0)->1 }
+Memory before	 { (1)->2, (3)->0, (2)->0, (0)->0 }
+Memory after	 { (1)->2, (3)->0, (2)->0, (0)->1 }
 Called STORE 2 () 
-Memory before	 { (1)->4, (3)->0, (2)->0, (0)->1 }
-Memory after	 { (1)->4, (3)->0, (2)->1, (0)->1 }
+Memory before	 { (1)->2, (3)->0, (2)->0, (0)->1 }
+Memory after	 { (1)->2, (3)->0, (2)->1, (0)->1 }
 Called JUMP N (<>) 
-Memory before	 { (1)->4, (3)->0, (2)->1, (0)->1 }
-Memory after	 { (1)->4, (3)->0, (2)->1, (0)->1 }
+Memory before	 { (1)->2, (3)->0, (2)->1, (0)->1 }
+Memory after	 { (1)->2, (3)->0, (2)->1, (0)->1 }
 Called LOAD 1 () N
-Memory before	 { (1)->4, (3)->0, (2)->1, (0)->1 }
-Memory after	 { (1)->4, (3)->0, (2)->1, (0)->4 }
+Memory before	 { (1)->2, (3)->0, (2)->1, (0)->1 }
+Memory after	 { (1)->2, (3)->0, (2)->1, (0)->2 }
 Called SUB 1 (=) 
-Memory before	 { (1)->4, (3)->0, (2)->1, (0)->4 }
-Memory after	 { (1)->4, (3)->0, (2)->1, (0)->3 }
+Memory before	 { (1)->2, (3)->0, (2)->1, (0)->2 }
+Memory after	 { (1)->2, (3)->0, (2)->1, (0)->1 }
 Called STORE 1 () 
-Memory before	 { (1)->4, (3)->0, (2)->1, (0)->3 }
-Memory after	 { (1)->3, (3)->0, (2)->1, (0)->3 }
+Memory before	 { (1)->2, (3)->0, (2)->1, (0)->1 }
+Memory after	 { (1)->1, (3)->0, (2)->1, (0)->1 }
 Called JUMP R (<>) 
-Memory before	 { (1)->3, (3)->0, (2)->1, (0)->3 }
-Memory after	 { (1)->3, (3)->0, (2)->1, (0)->3 }
+Memory before	 { (1)->1, (3)->0, (2)->1, (0)->1 }
+Memory after	 { (1)->1, (3)->0, (2)->1, (0)->1 }
 Called JZERO A (<>) R
-Memory before	 { (1)->3, (3)->0, (2)->1, (0)->3 }
-Memory after	 { (1)->3, (3)->0, (2)->1, (0)->3 }
+Memory before	 { (1)->1, (3)->0, (2)->1, (0)->1 }
+Memory after	 { (1)->1, (3)->0, (2)->1, (0)->1 }
 Called READ 0 () 
-Memory before	 { (1)->3, (3)->0, (2)->1, (0)->3 }
-Memory after	 { (1)->3, (3)->0, (2)->1, (0)->1 }
+Memory before	 { (1)->1, (3)->0, (2)->1, (0)->1 }
+Memory after	 { (1)->1, (3)->0, (2)->1, (0)->1 }
 Called JGTZ U (<>) 
-Memory before	 { (1)->3, (3)->0, (2)->1, (0)->1 }
-Memory after	 { (1)->3, (3)->0, (2)->1, (0)->1 }
+Memory before	 { (1)->1, (3)->0, (2)->1, (0)->1 }
+Memory after	 { (1)->1, (3)->0, (2)->1, (0)->1 }
 Called LOAD 3 () U
-Memory before	 { (1)->3, (3)->0, (2)->1, (0)->1 }
-Memory after	 { (1)->3, (3)->0, (2)->1, (0)->0 }
+Memory before	 { (1)->1, (3)->0, (2)->1, (0)->1 }
+Memory after	 { (1)->1, (3)->0, (2)->1, (0)->0 }
 Called ADD 1 (=) 
-Memory before	 { (1)->3, (3)->0, (2)->1, (0)->0 }
-Memory after	 { (1)->3, (3)->0, (2)->1, (0)->1 }
+Memory before	 { (1)->1, (3)->0, (2)->1, (0)->0 }
+Memory after	 { (1)->1, (3)->0, (2)->1, (0)->1 }
 Called STORE 3 () 
-Memory before	 { (1)->3, (3)->0, (2)->1, (0)->1 }
-Memory after	 { (1)->3, (3)->1, (2)->1, (0)->1 }
+Memory before	 { (1)->1, (3)->0, (2)->1, (0)->1 }
+Memory after	 { (1)->1, (3)->1, (2)->1, (0)->1 }
 Called JUMP N (<>) 
-Memory before	 { (1)->3, (3)->1, (2)->1, (0)->1 }
-Memory after	 { (1)->3, (3)->1, (2)->1, (0)->1 }
+Memory before	 { (1)->1, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->1, (3)->1, (2)->1, (0)->1 }
 Called LOAD 1 () N
-Memory before	 { (1)->3, (3)->1, (2)->1, (0)->1 }
-Memory after	 { (1)->3, (3)->1, (2)->1, (0)->3 }
+Memory before	 { (1)->1, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->1, (3)->1, (2)->1, (0)->1 }
 Called SUB 1 (=) 
-Memory before	 { (1)->3, (3)->1, (2)->1, (0)->3 }
-Memory after	 { (1)->3, (3)->1, (2)->1, (0)->2 }
+Memory before	 { (1)->1, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->1, (3)->1, (2)->1, (0)->0 }
 Called STORE 1 () 
-Memory before	 { (1)->3, (3)->1, (2)->1, (0)->2 }
-Memory after	 { (1)->2, (3)->1, (2)->1, (0)->2 }
+Memory before	 { (1)->1, (3)->1, (2)->1, (0)->0 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->0 }
 Called JUMP R (<>) 
-Memory before	 { (1)->2, (3)->1, (2)->1, (0)->2 }
-Memory after	 { (1)->2, (3)->1, (2)->1, (0)->2 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->0 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->0 }
 Called JZERO A (<>) R
-Memory before	 { (1)->2, (3)->1, (2)->1, (0)->2 }
-Memory after	 { (1)->2, (3)->1, (2)->1, (0)->2 }
-Called READ 0 () 
-Memory before	 { (1)->2, (3)->1, (2)->1, (0)->2 }
-Memory after	 { (1)->2, (3)->1, (2)->1, (0)->1 }
-Called JGTZ U (<>) 
-Memory before	 { (1)->2, (3)->1, (2)->1, (0)->1 }
-Memory after	 { (1)->2, (3)->1, (2)->1, (0)->1 }
-Called LOAD 3 () U
-Memory before	 { (1)->2, (3)->1, (2)->1, (0)->1 }
-Memory after	 { (1)->2, (3)->1, (2)->1, (0)->1 }
-Called ADD 1 (=) 
-Memory before	 { (1)->2, (3)->1, (2)->1, (0)->1 }
-Memory after	 { (1)->2, (3)->1, (2)->1, (0)->2 }
-Called STORE 3 () 
-Memory before	 { (1)->2, (3)->1, (2)->1, (0)->2 }
-Memory after	 { (1)->2, (3)->2, (2)->1, (0)->2 }
-Called JUMP N (<>) 
-Memory before	 { (1)->2, (3)->2, (2)->1, (0)->2 }
-Memory after	 { (1)->2, (3)->2, (2)->1, (0)->2 }
-Called LOAD 1 () N
-Memory before	 { (1)->2, (3)->2, (2)->1, (0)->2 }
-Memory after	 { (1)->2, (3)->2, (2)->1, (0)->2 }
-Called SUB 1 (=) 
-Memory before	 { (1)->2, (3)->2, (2)->1, (0)->2 }
-Memory after	 { (1)->2, (3)->2, (2)->1, (0)->1 }
-Called STORE 1 () 
-Memory before	 { (1)->2, (3)->2, (2)->1, (0)->1 }
-Memory after	 { (1)->1, (3)->2, (2)->1, (0)->1 }
-Called JUMP R (<>) 
-Memory before	 { (1)->1, (3)->2, (2)->1, (0)->1 }
-Memory after	 { (1)->1, (3)->2, (2)->1, (0)->1 }
-Called JZERO A (<>) R
-Memory before	 { (1)->1, (3)->2, (2)->1, (0)->1 }
-Memory after	 { (1)->1, (3)->2, (2)->1, (0)->1 }
-Called READ 0 () 
-Memory before	 { (1)->1, (3)->2, (2)->1, (0)->1 }
-Memory after	 { (1)->1, (3)->2, (2)->1, (0)->0 }
-Called JGTZ U (<>) 
-Memory before	 { (1)->1, (3)->2, (2)->1, (0)->0 }
-Memory after	 { (1)->1, (3)->2, (2)->1, (0)->0 }
-Called JUMP Z (<>) 
-Memory before	 { (1)->1, (3)->2, (2)->1, (0)->0 }
-Memory after	 { (1)->1, (3)->2, (2)->1, (0)->0 }
-Called LOAD 2 () Z
-Memory before	 { (1)->1, (3)->2, (2)->1, (0)->0 }
-Memory after	 { (1)->1, (3)->2, (2)->1, (0)->1 }
-Called ADD 1 (=) 
-Memory before	 { (1)->1, (3)->2, (2)->1, (0)->1 }
-Memory after	 { (1)->1, (3)->2, (2)->1, (0)->2 }
-Called STORE 2 () 
-Memory before	 { (1)->1, (3)->2, (2)->1, (0)->2 }
-Memory after	 { (1)->1, (3)->2, (2)->2, (0)->2 }
-Called JUMP N (<>) 
-Memory before	 { (1)->1, (3)->2, (2)->2, (0)->2 }
-Memory after	 { (1)->1, (3)->2, (2)->2, (0)->2 }
-Called LOAD 1 () N
-Memory before	 { (1)->1, (3)->2, (2)->2, (0)->2 }
-Memory after	 { (1)->1, (3)->2, (2)->2, (0)->1 }
-Called SUB 1 (=) 
-Memory before	 { (1)->1, (3)->2, (2)->2, (0)->1 }
-Memory after	 { (1)->1, (3)->2, (2)->2, (0)->0 }
-Called STORE 1 () 
-Memory before	 { (1)->1, (3)->2, (2)->2, (0)->0 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->0 }
-Called JUMP R (<>) 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->0 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->0 }
-Called JZERO A (<>) R
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->0 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->0 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->0 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->0 }
 Called LOAD 2 () A
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->0 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->2 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->0 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called JZERO FU (<>) 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->2 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->2 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called LOAD 3 () 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->2 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->2 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called JZERO FZ (<>) 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->2 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->2 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called DIV 2 () 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->2 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->1 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called JZERO FZ (<>) 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->1 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->1 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called LOAD 2 () 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->1 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->2 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called DIV 3 () 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->2 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->1 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called JZERO FU (<>) 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->1 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->1 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called JUMP EQ (<>) 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->1 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->1 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called WRITE 1 (=) EQ
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->1 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->1 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called WRITE 0 (=) 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->1 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->1 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
 Called HALT  (<>) 
-Memory before	 { (1)->0, (3)->2, (2)->2, (0)->1 }
-Memory after	 { (1)->0, (3)->2, (2)->2, (0)->1 }
-Output: { 1, 0 }
+Memory before	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Memory after	 { (1)->0, (3)->1, (2)->1, (0)->1 }
+Commands executed 43
+Out tape: { 1, 0 }

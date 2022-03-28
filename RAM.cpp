@@ -18,7 +18,9 @@ static const string PATH_NOT_SET_ERROR = "no file path";
 static const string FILE_NOT_FOUND_ERROR = "file not found";
 
 static const string FILE_PROCESSED_MSG = "File processed";
-static const string COMMANDS_MSG = "Commands";
+static const string COMMANDS_RECOGNIZED_MSG = "Commands recognized";
+static const string COMMANDS_EXECUTED_MSG = "Commands executed";
+static const string RUNNING_MSG = "Running...";
 static const string CALLED_MSG = "Called";
 static const string MEMORY_BEFORE_MSG = "Memory before";
 static const string MEMORY_AFTER_MSG = "Memory after";
@@ -154,12 +156,19 @@ Lab Machine::parse_label(const string &line) {
 Tape Machine::run() {
   process_file();
   auto it = commands_.begin();
+  uint64_t executed = 0;
+  if (verbose_) { *out_ << RUNNING_MSG << endl; }
   while (it != commands_.cend()) {
 	auto f = COM_HAND.at(it->ctype_);
-	IF_VERBOSE_CALL_MACRO(*this, VERBOSE_INFO(*this, it));
+	if (verbose_) { VERBOSE_INFO(*this, it); }
+	++executed;
 	it = f(*this, it);
-	IF_VERBOSE_CALL_MACRO(*this, TELL_MEMORY(*this, MEMORY_AFTER_MSG));
+	if (verbose_) { TELL_MEMORY(*this, MEMORY_AFTER_MSG); }
   }
+  if (verbose_) {
+	*out_ << COMMANDS_EXECUTED_MSG << " " << executed << endl;
+  }
+  *out_ << "Out tape: " << output_ << endl;
   return output_;
 }
 
@@ -197,8 +206,10 @@ void Machine::process_file() {
 	  add_label(inserted);
 	}
   }
-  cout << FILE_PROCESSED_MSG << endl;
-  cout << COMMANDS_MSG << " " << commands_.size() << endl;
+  if (verbose_) {
+	*out_ << FILE_PROCESSED_MSG << endl;
+	*out_ << COMMANDS_RECOGNIZED_MSG << " " << commands_.size() << endl;
+  }
 }
 
 ComIt Machine::process_command(const string &line) {
