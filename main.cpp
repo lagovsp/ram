@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "RAM.h"
+#include "ram.h"
 
 using namespace std;
 using namespace RAM;

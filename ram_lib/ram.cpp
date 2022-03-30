@@ -1,6 +1,6 @@
 // Copyright 2022 Sergey Lagov lagovsp@gmail.com
 
-#include "RAM.h"
+#include "ram.h"
 
 using namespace std;
 
