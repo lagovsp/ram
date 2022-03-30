@@ -1,4 +1,4 @@
-File processed ../ram-count-0-1.txt
+File processed ../ram-codes/ram-count-0-1.txt
 Commands recognized 39
 In tape { 2, 0, 1 }
 Running...
