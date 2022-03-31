@@ -2,17 +2,14 @@ Code set
 Commands recognized 39
 
 Input set 
-Input: { 6, 1, 0, 1, 0, 0, 1 }
-
-Input set 
 Input: { 0 }
 
 RUNNING... 
 {  }
-1. called  LOAD 0 (=)  -> 		{  }
-2. called  STORE 2 ()  -> 		{ (0)->0 }
-3. called  STORE 3 ()  -> 		{ (0)->0, (2)->0 }
-4. called  READ 1 ()  -> 		{ (0)->0, (2)->0, (3)->0 }
+1. called  LOAD 0 (=)  -> 		{ (0)->0 }
+2. called  STORE 2 ()  -> 		{ (0)->0, (2)->0 }
+3. called  STORE 3 ()  -> 		{ (0)->0, (2)->0, (3)->0 }
+4. called  READ 1 ()  -> 		{ (0)->0, (1)->0, (2)->0, (3)->0 }
 5. called  LOAD 1 ()  -> 		{ (0)->0, (1)->0, (2)->0, (3)->0 }
 6. called  JZERO EQ (<>)  -> 		{ (0)->0, (1)->0, (2)->0, (3)->0 }
 7. called  WRITE 1 (=) EQ -> 		{ (0)->0, (1)->0, (2)->0, (3)->0 }

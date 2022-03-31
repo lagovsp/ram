@@ -16,7 +16,6 @@ int main() {
   m.set_code(cs);
 
   ifstream is("../input/in-count-0-1.txt");
-  m.set_input(is);
   m.set_input({0});
 
   auto output = m.run();

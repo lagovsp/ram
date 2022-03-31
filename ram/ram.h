@@ -38,7 +38,7 @@ using Val = int;
 
 using Arg = std::variant<int, std::string>;
 using Lab = std::optional<std::string>;
-using Path = std::optional<std::string>;
+//using Path = std::optional<std::string>;
 
 using ComT = std::string;
 using ArgT = std::string;
@@ -55,7 +55,6 @@ using ComIt = Program::iterator;
 
 using Tape = std::list<Val>;
 using Labels = std::unordered_map<Lab, ComIt>;
-//using Memory = std::unordered_map<Add, Val>;
 using Memory = std::map<Add, Val>;
 
 std::ostream &operator<<(std::ostream &, const Tape &);
@@ -101,10 +100,9 @@ class Machine {
   Program commands_;
 
   bool verbose_ = false;
-  std::ostream *out_;
+  std::ostream *out_ = nullptr;
 
   void add_label(ComIt);
-//  void process_code(std::istream &);
   ComIt process_command(const std::string &);
 
   static Com parse_command(const std::string &);
@@ -113,13 +111,6 @@ class Machine {
   static Arg parse_argument_numeric(const std::string &);
   static Arg parse_argument_label(const std::string &);
   static Lab parse_label(const std::string &);
-
-//  Com parse_command(const std::string &);
-//  ComT parse_command_t(const std::string &);
-//  ArgT parse_argument_t(const std::string &);
-//  Arg parse_argument_numeric(const std::string &);
-//  Arg parse_argument_label(const std::string &);
-//  Lab parse_label(const std::string &);
 
   static Arg value_to_argument(const Machine &, const Arg &);
   static Arg address_to_argument(const Machine &, const Arg &);

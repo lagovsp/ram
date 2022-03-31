@@ -174,8 +174,10 @@ Tape Machine::run() {
 
   while (!stop_ && it != commands_.cend()) {
 	auto f = COM_HAND.at(it->ctype_);
-	LOG_VERBOSE(COMMAND_INFO(++executed, it) << " -> \t\t" << memory_);
+	auto cmit = it;
+	++executed;
 	it = f(*this, it);
+	LOG_VERBOSE(COMMAND_INFO(executed, cmit) << " -> \t\t" << memory_);
   }
 
   LOG_VERBOSE(FINISHED_MSG << endl);
