@@ -1,21 +1,30 @@
 # Random Access Machine
 
-## Usage
+## Manual
 
-1. Setting up
+1. Set `CMakeLists.txt` properly
+
+```cmake
+add_executable(exec *.cpp)
+
+add_subdirectory(ram)
+target_link_libraries(exec PUBLIC ram)
+```
+
+2. Setting up
 
 ```cpp
 #include "RAM.h"
 using namespace RAM;
 ```
 
-2. Create an instance of RAM
+3. Create an instance of RAM
 
 ```cpp
 Machine m;
 ```
 
-3. Adjust it
+4. Adjust it
 
 ```cpp
 m.set_code("ram-count-0-1.txt"); // set the source RAM-code path
@@ -24,16 +33,16 @@ m.be_verbose(false); // to be verbose while executing (false by default)
 m.set_ostream(cout); // customize the out stream (cout by default)
 ```
 
-4. Run the code
+5. Run the code
 
 ```cpp
-auto output = m.run();
+m.run();
 ```
 
-5. See the output
+6. Check the log file or print the out tape
 
 ```cpp
-cout << "Output: " << output;
+cout << m.run();
 ```
 
 ## Example

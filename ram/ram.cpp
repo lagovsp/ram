@@ -38,6 +38,12 @@ static const string FINISHED_MSG = "PROGRAM FINISHED ";
 #define LOG(msg) do { if (out_) { *out_ << msg << endl; } } while(false)
 #define LOG_VERBOSE(msg) do { if (verbose_) { LOG(msg); } } while(false)
 
+#define COMMAND_INFO(num, c)                                                 \
+    (num) << ". " << CALLED_MSG << " " << (c)->ctype_                        \
+    << " " << (c)->arg_                                                      \
+    << " " << (c)->atype_                                                    \
+    << " " << (c)->label_.value_or("")
+
 #define GET_ARG(m, c)                                                        \
     RAM::Machine::GROUPS.at((c)->ctype_).at((c)->atype_)((m), (c)->arg_)
 
@@ -163,18 +169,16 @@ Lab Machine::parse_label(const string &line) {
 Tape Machine::run() {
   auto it = commands_.begin();
   uint64_t executed = 0;
-
-  LOG(IN_TAPE_MSG << input_);
   LOG_VERBOSE(RUNNING_MSG);
+  LOG_VERBOSE(memory_);
 
   while (!stop_ && it != commands_.cend()) {
 	auto f = COM_HAND.at(it->ctype_);
-	LOG_VERBOSE(memory_);
-	++executed;
+	LOG_VERBOSE(COMMAND_INFO(++executed, it) << " -> \t\t" << memory_);
 	it = f(*this, it);
   }
 
-  LOG_VERBOSE(FINISHED_MSG);
+  LOG_VERBOSE(FINISHED_MSG << endl);
   LOG_VERBOSE(COMMANDS_EXECUTED_MSG << executed);
   LOG(OUT_TAPE_MSG << output_);
   return output_;
@@ -196,7 +200,7 @@ void Machine::set_code(istream &is) {
 	}
   }
   LOG(CODE_SET_MSG);
-  LOG_VERBOSE(COMMANDS_RECOGNIZED_MSG << commands_.size());
+  LOG_VERBOSE(COMMANDS_RECOGNIZED_MSG << commands_.size() << endl);
 }
 
 void Machine::set_input(istream &is) {
@@ -208,7 +212,8 @@ void Machine::set_input(istream &is) {
   while (getline(is, s, SP)) {
 	input_.push_back(stoi(s));
   }
-  LOG(INPUT_RECEIVED_MSG << input_);
+  LOG(INPUT_RECEIVED_MSG);
+  LOG(IN_TAPE_MSG << input_ << endl);
 }
 
 void Machine::set_log_stream(ostream &os) {

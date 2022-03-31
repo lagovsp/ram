@@ -11,7 +11,7 @@ int main() {
   ofstream ls("../logs/log-count-0-1.txt");
   m.set_log_stream(ls);
   m.be_verbose(true);
-  
+
   ifstream cs("../codes/code-count-0-1.txt");
   m.set_code(cs);
 
