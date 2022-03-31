@@ -2,7 +2,7 @@
 
 ## Manual
 
-1. Set `CMakeLists.txt` properly
+1. Firstly, set `CMakeLists.txt`
 
 ```cmake
 add_executable(exec *.cpp)
@@ -11,20 +11,16 @@ add_subdirectory(ram)
 target_link_libraries(exec PUBLIC ram)
 ```
 
-2. Setting up
+2. Include the library and create an instance of RAM
 
 ```cpp
 #include "RAM.h"
 using namespace RAM;
-```
-
-3. Create an instance of RAM
-
-```cpp
+...
 Machine m;
 ```
 
-4. Adjust it
+3. Adjust it
 
 ```cpp
 m.set_code("ram-count-0-1.txt"); // set the source RAM-code path
@@ -33,16 +29,17 @@ m.be_verbose(false); // to be verbose while executing (false by default)
 m.set_ostream(cout); // customize the out stream (cout by default)
 ```
 
-5. Run the code
+4. Run the code
 
 ```cpp
-m.run();
+auto output = m.run();
+
 ```
 
-6. Check the log file or print the out tape
+5. Check the logs or print the out tape
 
 ```cpp
-cout << m.run();
+cout << output;
 ```
 
 ## Example
@@ -134,6 +131,6 @@ m.set_input({0});
 Output: { 1, 0 }
 ```
 
-You can have a glance at the logs in `output.txt`
+You can have a glance at the `logs` folder
 
 ###### Copyright 2022 Sergey Lagov lagovsp@gmail.com
