@@ -131,6 +131,6 @@ m.set_input({0});
 Output: { 1, 0 }
 ```
 
-You can have a glance at the `logs` folder
+Detailed logs are in `logs` folder
 
 ###### Copyright 2022 Sergey Lagov lagovsp@gmail.com

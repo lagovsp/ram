@@ -208,6 +208,7 @@ void Machine::set_input(istream &is) {
 	LOG(BAD_ISTREAM_ERROR);
 	throw runtime_error(BAD_ISTREAM_ERROR);
   }
+  input_.clear();
   string s;
   while (getline(is, s, SP)) {
 	input_.push_back(stoi(s));
@@ -222,6 +223,8 @@ void Machine::set_log_stream(ostream &os) {
 
 void Machine::set_input(initializer_list<Val> vals) {
   input_.assign(vals);
+  LOG(INPUT_RECEIVED_MSG);
+  LOG(IN_TAPE_MSG << input_ << endl);
 }
 
 void Machine::be_verbose(bool flag) {
