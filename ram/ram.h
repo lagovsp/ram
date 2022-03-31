@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <map>
 #include <set>
+#include <memory>
+#include <sstream>
 #include <functional>
 
 #define MACHINE_STATIC_FUN_DECL(name) static ComIt name(Machine &, ComIt &)
@@ -42,10 +44,10 @@ using ComT = std::string;
 using ArgT = std::string;
 
 struct Com {
-  ComT ctype_; // LOAD, STORE, ADD ...
-  ArgT atype_; // ADDRESS, VALUE, ADDRESS_AT_ADDRESS
-  Arg arg_; // 2, FU ...
-  Lab label_; // this command label if present
+  ComT ctype_;
+  ArgT atype_;
+  Arg arg_;
+  Lab label_;
 };
 
 using Program = std::list<Com>;
@@ -53,7 +55,8 @@ using ComIt = Program::iterator;
 
 using Tape = std::list<Val>;
 using Labels = std::unordered_map<Lab, ComIt>;
-using Memory = std::unordered_map<Add, Val>;
+//using Memory = std::unordered_map<Add, Val>;
+using Memory = std::map<Add, Val>;
 
 std::ostream &operator<<(std::ostream &, const Tape &);
 std::ostream &operator<<(std::ostream &, const Memory &);
@@ -62,9 +65,12 @@ class Machine {
  public:
   Machine() = default;
   Tape run();
-  void set_path(const std::string &);
+
+  void set_code(std::istream &);
+  void set_input(std::istream &);
   void set_input(std::initializer_list<Val>);
-  void set_ostream(std::ostream &);
+
+  void set_log_stream(std::ostream &os);
   void be_verbose(bool);
 
   static inline const ComT LOAD = "LOAD";
@@ -86,7 +92,8 @@ class Machine {
   static inline const ArgT LABEL = "(<>)";
 
  private:
-  Path file_;
+  mutable bool stop_ = false;
+
   Tape input_;
   Tape output_;
   Memory memory_;
@@ -94,10 +101,10 @@ class Machine {
   Program commands_;
 
   bool verbose_ = false;
-  std::ostream *out_{&std::cout};
+  std::ostream *out_;
 
-  void process_file();
   void add_label(ComIt);
+//  void process_code(std::istream &);
   ComIt process_command(const std::string &);
 
   static Com parse_command(const std::string &);
@@ -106,6 +113,13 @@ class Machine {
   static Arg parse_argument_numeric(const std::string &);
   static Arg parse_argument_label(const std::string &);
   static Lab parse_label(const std::string &);
+
+//  Com parse_command(const std::string &);
+//  ComT parse_command_t(const std::string &);
+//  ArgT parse_argument_t(const std::string &);
+//  Arg parse_argument_numeric(const std::string &);
+//  Arg parse_argument_label(const std::string &);
+//  Lab parse_label(const std::string &);
 
   static Arg value_to_argument(const Machine &, const Arg &);
   static Arg address_to_argument(const Machine &, const Arg &);

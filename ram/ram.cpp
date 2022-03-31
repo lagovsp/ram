@@ -6,6 +6,7 @@ using namespace std;
 
 namespace RAM {
 
+static const char SP = ' ';
 static const char LP = '(';
 static const char RP = ')';
 static const char EQ = '=';
@@ -14,36 +15,34 @@ static const char PTR = '*';
 static const string LABEL_USED_ERROR = "label already used";
 static const string LABEL_NOT_FOUND_ERROR = "label not found";
 static const string BAD_COMMAND_ERROR = "bad command";
-static const string PATH_NOT_SET_ERROR = "no file path";
+static const string PATH_NOT_SET_ERROR = "file path not set";
 static const string FILE_NOT_FOUND_ERROR = "file not found";
+static const string BAD_ISTREAM_ERROR = "bad istream";
+static const string BAD_OSTREAM_ERROR = "bad ostream";
 
-static const string FILE_PROCESSED_MSG = "File processed";
-static const string COMMANDS_RECOGNIZED_MSG = "Commands recognized";
-static const string COMMANDS_EXECUTED_MSG = "Commands executed";
-static const string RUNNING_MSG = "Running...";
-static const string CALLED_MSG = "Called";
-static const string MEMORY_BEFORE_MSG = "Memory before";
-static const string MEMORY_AFTER_MSG = "Memory after";
-static const string OUT_TAPE_MSG = "Out tape";
-static const string IN_TAPE_MSG = "In tape";
-static const string FINISHED_MSG = "Program finished";
+static const string FILE_PROCESSED_MSG = "File processed ";
+
+static const string INPUT_RECEIVED_MSG = "Input set ";
+static const string CODE_SET_MSG = "Code set ";
+
+static const string COMMANDS_RECOGNIZED_MSG = "Commands recognized ";
+static const string COMMANDS_EXECUTED_MSG = "Commands executed ";
+static const string CALLED_MSG = "called ";
+
+static const string IN_TAPE_MSG = "Input: ";
+static const string OUT_TAPE_MSG = "Output: ";
+
+static const string RUNNING_MSG = "RUNNING... ";
+static const string FINISHED_MSG = "PROGRAM FINISHED ";
+
+#define LOG(msg) do { if (out_) { *out_ << msg << endl; } } while(false)
+#define LOG_VERBOSE(msg) do { if (verbose_) { LOG(msg); } } while(false)
 
 #define GET_ARG(m, c)                                                        \
     RAM::Machine::GROUPS.at((c)->ctype_).at((c)->atype_)((m), (c)->arg_)
 
 #define GET_VALUE(m, c) get<int>(GET_ARG((m), (c)))
 #define GET_LABEL(m, c) get<string>(GET_ARG((m), (c)))
-
-#define TELL_MEMORY(m, status_msg)                                          \
-    *(m).out_ << (status_msg) << "\t " << (m).memory_ << endl
-
-#define VERBOSE_INFO(m, c)                                                  \
-    *(m).out_ << CALLED_MSG << " " << (c)->ctype_                           \
-    << " " << (c)->arg_                                                     \
-    << " " << (c)->atype_                                                   \
-    << " " << (c)->label_.value_or("")                                      \
-    << endl;                                                                \
-    TELL_MEMORY((m), MEMORY_BEFORE_MSG)
 
 ostream &operator<<(ostream &os, const Arg &a) {
   if (a.index() == 0) { os << get<int>(a); }
@@ -59,8 +58,7 @@ ostream &operator<<(ostream &os, const Tape &c) {
 	first = false;
 	os << pos;
   }
-  os << " }";
-  return os;
+  return os << " }";
 }
 
 ostream &operator<<(ostream &os, const Memory &m) {
@@ -71,8 +69,7 @@ ostream &operator<<(ostream &os, const Memory &m) {
 	first = false;
 	os << "(" << key << ")->" << value;
   }
-  os << " }";
-  return os;
+  return os << " }";
 }
 
 static const set<ArgT> LABEL_COMS = {
@@ -92,11 +89,25 @@ Arg Machine::value_to_argument(const Machine &m, const Arg &a) {
 }
 
 Arg Machine::address_to_argument(const Machine &m, const Arg &a) {
+  if (get<int>(a) < 0) {
+	m.stop_ = true;
+	return Arg{};
+  }
   return m.memory_.at(get<int>(a));
 }
 
 Arg Machine::address_to_address_to_argument(const Machine &m, const Arg &a) {
-  return address_to_argument(m, address_to_argument(m, a));
+  if (get<int>(a) < 0) {
+	m.stop_ = true;
+	return Arg{};
+  }
+  auto ct = m.memory_.at(get<int>(a));
+  if (ct < 0) {
+	m.stop_ = true;
+	return Arg{};
+  }
+//  return address_to_argument(m, address_to_argument(m, a));
+  return m.memory_.at(ct);
 }
 
 Arg Machine::label_to_argument(const Machine &m, const Arg &a) {
@@ -150,55 +161,29 @@ Lab Machine::parse_label(const string &line) {
 }
 
 Tape Machine::run() {
-  process_file();
   auto it = commands_.begin();
   uint64_t executed = 0;
-  *out_ << IN_TAPE_MSG << " " << input_ << endl;
-  if (verbose_) {
-	*out_ << RUNNING_MSG << endl;
-  }
-  while (it != commands_.cend()) {
+
+  LOG(IN_TAPE_MSG << input_);
+  LOG_VERBOSE(RUNNING_MSG);
+
+  while (!stop_ && it != commands_.cend()) {
 	auto f = COM_HAND.at(it->ctype_);
-	if (verbose_) {
-	  VERBOSE_INFO(*this, it);
-	}
+	LOG_VERBOSE(memory_);
 	++executed;
 	it = f(*this, it);
-	if (verbose_) {
-	  TELL_MEMORY(*this, MEMORY_AFTER_MSG);
-	}
   }
-  if (verbose_) {
-	*out_ << FINISHED_MSG << endl;
-	*out_ << COMMANDS_EXECUTED_MSG << " " << executed << endl;
-  }
-  *out_ << OUT_TAPE_MSG << " " << output_ << endl;
+
+  LOG_VERBOSE(FINISHED_MSG);
+  LOG_VERBOSE(COMMANDS_EXECUTED_MSG << executed);
+  LOG(OUT_TAPE_MSG << output_);
   return output_;
 }
 
-void Machine::set_path(const string &path) {
-  file_ = path;
-}
-
-void Machine::set_input(initializer_list<Val> vals) {
-  input_.assign(vals);
-}
-
-void Machine::be_verbose(bool flag) {
-  verbose_ = flag;
-}
-
-void Machine::set_ostream(ostream &os) {
-  out_ = &os;
-}
-
-void Machine::process_file() {
-  if (!file_) {
-	throw runtime_error(PATH_NOT_SET_ERROR);
-  }
-  ifstream is(file_.value());
+void Machine::set_code(istream &is) {
   if (!is) {
-	throw runtime_error(FILE_NOT_FOUND_ERROR);
+	LOG(BAD_ISTREAM_ERROR);
+	throw runtime_error(BAD_ISTREAM_ERROR);
   }
   string buffer;
   while (getline(is, buffer)) {
@@ -210,11 +195,53 @@ void Machine::process_file() {
 	  add_label(inserted);
 	}
   }
-  *out_ << FILE_PROCESSED_MSG << " " << file_.value() << endl;
-  if (verbose_) {
-	*out_ << COMMANDS_RECOGNIZED_MSG << " " << commands_.size() << endl;
-  }
+  LOG(CODE_SET_MSG);
+  LOG_VERBOSE(COMMANDS_RECOGNIZED_MSG << commands_.size());
 }
+
+void Machine::set_input(istream &is) {
+  if (!is) {
+	LOG(BAD_ISTREAM_ERROR);
+	throw runtime_error(BAD_ISTREAM_ERROR);
+  }
+  string s;
+  while (getline(is, s, SP)) {
+	input_.push_back(stoi(s));
+  }
+  LOG(INPUT_RECEIVED_MSG << input_);
+}
+
+void Machine::set_log_stream(ostream &os) {
+  out_ = &os;
+}
+
+void Machine::set_input(initializer_list<Val> vals) {
+  input_.assign(vals);
+}
+
+void Machine::be_verbose(bool flag) {
+  verbose_ = flag;
+}
+
+//void Machine::process_code(istream &is) {
+//  if (!is) {
+//	throw runtime_error(BAD_ISTREAM_ERROR);
+//  }
+//  string buffer;
+//  while (getline(is, buffer)) {
+//	if (buffer.empty()) {
+//	  continue;
+//	}
+//	auto inserted = process_command(buffer);
+//	if (inserted->label_.has_value()) {
+//	  add_label(inserted);
+//	}
+//  }
+//  *out_ << CODE_SET_MSG << endl;
+//  if (verbose_) {
+//	*out_ << COMMANDS_RECOGNIZED_MSG << commands_.size() << endl;
+//  }
+//}
 
 ComIt Machine::process_command(const string &line) {
   Com c = parse_command(line);
@@ -223,6 +250,7 @@ ComIt Machine::process_command(const string &line) {
 
 void Machine::add_label(ComIt it) {
   if (labels_.contains(it->label_.value())) {
+	LOG(LABEL_USED_ERROR);
 	throw runtime_error(LABEL_USED_ERROR);
   }
   labels_[it->label_.value()] = it;

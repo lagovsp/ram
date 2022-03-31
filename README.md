@@ -18,7 +18,7 @@ Machine m;
 3. Adjust it
 
 ```cpp
-m.set_path("ram-count-0-1.txt"); // set the source RAM-code path
+m.set_code("ram-count-0-1.txt"); // set the source RAM-code path
 m.set_input({6, 1, 0, 1, 0, 0, 1}); // enter the input data
 m.be_verbose(false); // to be verbose while executing (false by default)
 m.set_ostream(cout); // customize the out stream (cout by default)

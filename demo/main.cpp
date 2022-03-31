@@ -7,12 +7,16 @@ using namespace RAM;
 
 int main() {
   Machine m;
-  m.set_path("../ram-codes/ram-count-0-1.txt");
-  m.set_input({2, 0, 1});
-  m.be_verbose(true);
 
-  ofstream ofs("../outputs/output.txt");
-  m.set_ostream(ofs);
+  ofstream ls("../logs/log-count-0-1.txt");
+  m.set_log_stream(ls);
+  m.be_verbose(true);
+  
+  ifstream cs("../codes/code-count-0-1.txt");
+  m.set_code(cs);
+
+  ifstream is("../input/in-count-0-1.txt");
+  m.set_input(is);
 
   auto output = m.run();
 
