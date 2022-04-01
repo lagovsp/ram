@@ -25,6 +25,8 @@ static const string CODE_SET_MSG = "Code set ";
 static const string COMMANDS_RECOGNIZED_MSG = "Commands recognized ";
 static const string COMMANDS_EXECUTED_MSG = "Commands executed ";
 static const string CALLED_MSG = "called ";
+static const string REACHING_UNINIT_MSG = "Reaching uninitialized cell ";
+static const string REACHING_NEGATIVE_MSG = "Reaching neagtive cell ";
 
 static const string IN_TAPE_MSG = "Input: ";
 static const string OUT_TAPE_MSG = "Output: ";
@@ -32,6 +34,7 @@ static const string OUT_TAPE_MSG = "Output: ";
 static const string RUNNING_MSG = "RUNNING... ";
 static const string FINISHED_MSG = "PROGRAM FINISHED ";
 static const string CRASHED_MSG = "PROGRAM CRASHED ";
+static const string WARNING_MSG = "WARNING ";
 
 #define LOG(m, msg)                                                          \
     do { if ((m).out_) { *(m).out_ << msg << endl; } } while(false)
@@ -119,27 +122,31 @@ Arg Machine::get_arg(ComIt c) {
 	stop_ = true;
 	return Arg{};
   }
-//  LOG(*this, "get_arg = " << a_handler->second(*this, c->arg_));
   return a_handler->second(*this, c->arg_);
 }
 
-Arg Machine::value(const Machine &m, const Arg &a) {
+Arg Machine::value(Machine &m, const Arg &a) {
   return get<int>(a);
 }
 
-Arg Machine::direct_value(const Machine &m, const Arg &a) {
+Arg Machine::direct_value(Machine &m, const Arg &a) {
   if (m.stop_ && get<int>(a) < 0) {
 	m.stop_ = true;
+	LOG_VERBOSE(m, WARNING_MSG << REACHING_NEGATIVE_MSG);
+	return Arg{};
+  } else if (!m.memory_.contains(get<int>(a))) {
+	m.memory_[get<int>(a)] = rand();
+	LOG_VERBOSE(m, WARNING_MSG << REACHING_UNINIT_MSG);
 	return Arg{};
   }
   return m.memory_.at(get<int>(a));
 }
 
-Arg Machine::indirect_value(const Machine &m, const Arg &a) {
+Arg Machine::indirect_value(Machine &m, const Arg &a) {
   return direct_value(m, direct_value(m, a));
 }
 
-Arg Machine::label(const Machine &m, const Arg &a) {
+Arg Machine::label(Machine &m, const Arg &a) {
   return get<string>(a);
 }
 
@@ -278,12 +285,9 @@ ComIt Machine::load(Machine &m, ComIt &c) {
 
 ComIt Machine::store(Machine &m, ComIt &c) {
   auto v = GET_VALUE(m, c);
-
-  LOG(m, "v = " << v);
-
   CHECK_STOP(m);
   auto buf = m.memory_.at(0);
-  m.memory_[v] = buf;
+  m.memory_[v] = buf; // fix this
   return ++c;
 }
 

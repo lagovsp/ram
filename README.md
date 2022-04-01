@@ -2,7 +2,7 @@
 
 ## Manual
 
-1. Firstly, set `CMakeLists.txt`
+1. Firstly, set up `CMakeLists.txt`
 
 ```cmake
 add_executable(exec *.cpp)
@@ -20,23 +20,37 @@ using namespace RAM;
 Machine m;
 ```
 
-3. Adjust it
+3. Give the machine a stream to write to. Specify the logging mode (briefly - default)
 
 ```cpp
-m.set_code("ram-count-0-1.txt"); // set the source RAM-code path
-m.set_input({6, 1, 0, 1, 0, 0, 1}); // enter the input data
-m.be_verbose(false); // to be verbose while executing (false by default)
-m.set_ostream(cout); // customize the out stream (cout by default)
+ofstream ls("../logs/log-count-0-1.txt");
+m.set_log_stream(ls);
+m.be_verbose(true);
 ```
 
-4. Run the code
+4. Provide it with the input stream to take the RAM-code from
+
+```cpp
+ifstream cs("../codes/code-count-0-1.txt");
+m.set_code(cs);
+```
+
+5. Analogically, for your program input
+
+```cpp
+ifstream is("../input/in-count-0-1.txt");
+m.set_input(is); // method 1
+
+m.set_input({6, 1, 0, 1, 0, 0, 1}); // method 2
+```
+
+6. Run the code
 
 ```cpp
 auto output = m.run();
-
 ```
 
-5. Check the logs or print the out tape
+7. Check the logs or print the out tape
 
 ```cpp
 cout << output;

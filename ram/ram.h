@@ -38,7 +38,6 @@ using Val = int;
 
 using Arg = std::variant<int, std::string>;
 using Lab = std::optional<std::string>;
-//using Path = std::optional<std::string>;
 
 using ComT = std::string;
 using ArgT = std::string;
@@ -91,7 +90,7 @@ class Machine {
   static inline const ArgT LABEL = "(<>)";
 
  private:
-  mutable bool stop_ = false;
+  bool stop_ = false;
 
   Tape input_;
   Tape output_;
@@ -114,12 +113,13 @@ class Machine {
 
   Arg get_arg(ComIt);
 
-  static Arg value(const Machine &, const Arg &);
-  static Arg direct_value(const Machine &, const Arg &);
-  static Arg indirect_value(const Machine &, const Arg &);
-  static Arg label(const Machine &, const Arg &);
+  // may be made non-static
+  static Arg value(Machine &, const Arg &);
+  static Arg direct_value(Machine &, const Arg &);
+  static Arg indirect_value(Machine &, const Arg &);
+  static Arg label(Machine &, const Arg &);
 
-  using ArgHand = std::function<Arg(const Machine &, const Arg &)>;
+  using ArgHand = std::function<Arg(Machine &, const Arg &)>;
 
   static inline const std::map<ArgT, ArgHand> FROM_T = {
 	  {VALUE, value},
@@ -135,21 +135,6 @@ class Machine {
   static inline const std::map<ArgT, ArgHand> MOVE_T = {
 	  {LABEL, label},
   };
-
-//  static inline const std::map<ComT, std::map<ArgT, ArgHand>> GROUPS = {
-//	  {LOAD, FROM_HAND},
-//	  {STORE, TO_HAND},
-//	  {ADD, FROM_HAND},
-//	  {SUB, FROM_HAND},
-//	  {MULT, FROM_HAND},
-//	  {DIV, FROM_HAND},
-//	  {READ, TO_HAND},
-//	  {WRITE, FROM_HAND},
-//	  {JUMP, MOVE_HAND},
-//	  {JGTZ, MOVE_HAND},
-//	  {JZERO, MOVE_HAND},
-//	  {HALT, MOVE_HAND},
-//  };
 
   ALL_MACHINE_STATIC_FUN_DECL;
   using Fun = std::function<ComIt(Machine &, ComIt &)>;
@@ -169,21 +154,6 @@ class Machine {
 	  {JZERO, {MOVE_T, jzero}},
 	  {HALT, {MOVE_T, halt}},
   };
-
-//  static inline const std::map<ComT, ComHand> COM_HAND = {
-//	  {LOAD, load},
-//	  {STORE, store},
-//	  {ADD, add},
-//	  {SUB, sub},
-//	  {MULT, mult},
-//	  {DIV, div},
-//	  {READ, read},
-//	  {WRITE, write},
-//	  {JUMP, jump},
-//	  {JGTZ, jgtz},
-//	  {JZERO, jzero},
-//	  {HALT, halt},
-//  };
 };
 
 }
