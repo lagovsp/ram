@@ -14,13 +14,10 @@ static const char PTR = '*';
 
 static const string LABEL_USED_ERROR = "label already used";
 static const string LABEL_NOT_FOUND_ERROR = "label not found";
+static const string BAD_ARG_TYPE_ERROR = "bad argument type";
 static const string BAD_COMMAND_ERROR = "bad command";
-static const string PATH_NOT_SET_ERROR = "file path not set";
-static const string FILE_NOT_FOUND_ERROR = "file not found";
 static const string BAD_ISTREAM_ERROR = "bad istream";
-static const string BAD_OSTREAM_ERROR = "bad ostream";
-
-static const string FILE_PROCESSED_MSG = "File processed ";
+static const string NO_MORE_INPUT_ERROR = "no more input";
 
 static const string INPUT_RECEIVED_MSG = "Input set ";
 static const string CODE_SET_MSG = "Code set ";
@@ -34,21 +31,45 @@ static const string OUT_TAPE_MSG = "Output: ";
 
 static const string RUNNING_MSG = "RUNNING... ";
 static const string FINISHED_MSG = "PROGRAM FINISHED ";
+static const string CRASHED_MSG = "PROGRAM CRASHED ";
 
-#define LOG(msg) do { if (out_) { *out_ << msg << endl; } } while(false)
-#define LOG_VERBOSE(msg) do { if (verbose_) { LOG(msg); } } while(false)
+#define LOG(m, msg)                                                          \
+    do { if ((m).out_) { *(m).out_ << msg << endl; } } while(false)
+
+#define LOG_VERBOSE(m, msg)                                                  \
+    do { if ((m).verbose_) { LOG((m),msg); } } while(false)
+
+#define STOPPED_WITH(m, msg)                                                 \
+    do {                                                                     \
+        LOG((m),(msg));                                                      \
+        throw runtime_error((msg));                                          \
+    } while(false)
+
+#define CHECK_STOP(m)                                                        \
+    do {                                                                     \
+        if ((m).stop_) {                                                     \
+            LOG((m),CRASHED_MSG);                                            \
+            return (m).commands_.end();                                      \
+        }                                                                    \
+    } while(false)
+
+#define CHECK_LABEL_PRESENT(m, found)                                        \
+    do {                                                                     \
+        if ((found) == (m).labels_.cend()) {                                 \
+            (m).stop_ = true;                                                \
+            STOPPED_WITH((m), LABEL_NOT_FOUND_ERROR);                        \
+        }                                                                    \
+        CHECK_STOP((m));                                                     \
+    } while(false)
 
 #define COMMAND_INFO(num, c)                                                 \
-    (num) << ". " << CALLED_MSG << " " << (c)->ctype_                        \
+    (num) << ". " << CALLED_MSG << (c)->ctype_                               \
     << " " << (c)->arg_                                                      \
     << " " << (c)->atype_                                                    \
     << " " << (c)->label_.value_or("")
 
-#define GET_ARG(m, c)                                                        \
-    RAM::Machine::GROUPS.at((c)->ctype_).at((c)->atype_)((m), (c)->arg_)
-
-#define GET_VALUE(m, c) get<int>(GET_ARG((m), (c)))
-#define GET_LABEL(m, c) get<string>(GET_ARG((m), (c)))
+#define GET_VALUE(m, c) get<int>((m).get_arg((c)))
+#define GET_LABEL(m, c) get<string>((m).get_arg((c)))
 
 ostream &operator<<(ostream &os, const Arg &a) {
   if (a.index() == 0) { os << get<int>(a); }
@@ -90,47 +111,49 @@ static const map<char, ArgT> ARG_TYPES = {
 	{PTR, Machine::ADDRESS_AT_ADDRESS},
 };
 
-Arg Machine::value_to_argument(const Machine &m, const Arg &a) {
+Arg Machine::get_arg(ComIt c) {
+  auto allowed_types = COM_HAND.at(c->ctype_).first;
+  auto a_handler = allowed_types.find(c->atype_);
+  if (a_handler == allowed_types.cend()) {
+	LOG(*this, BAD_ARG_TYPE_ERROR);
+	stop_ = true;
+	return Arg{};
+  }
+//  LOG(*this, "get_arg = " << a_handler->second(*this, c->arg_));
+  return a_handler->second(*this, c->arg_);
+}
+
+Arg Machine::value(const Machine &m, const Arg &a) {
   return get<int>(a);
 }
 
-Arg Machine::address_to_argument(const Machine &m, const Arg &a) {
-  if (get<int>(a) < 0) {
+Arg Machine::direct_value(const Machine &m, const Arg &a) {
+  if (m.stop_ && get<int>(a) < 0) {
 	m.stop_ = true;
 	return Arg{};
   }
   return m.memory_.at(get<int>(a));
 }
 
-Arg Machine::address_to_address_to_argument(const Machine &m, const Arg &a) {
-  if (get<int>(a) < 0) {
-	m.stop_ = true;
-	return Arg{};
-  }
-  auto ct = m.memory_.at(get<int>(a));
-  if (ct < 0) {
-	m.stop_ = true;
-	return Arg{};
-  }
-//  return address_to_argument(m, address_to_argument(m, a));
-  return m.memory_.at(ct);
+Arg Machine::indirect_value(const Machine &m, const Arg &a) {
+  return direct_value(m, direct_value(m, a));
 }
 
-Arg Machine::label_to_argument(const Machine &m, const Arg &a) {
+Arg Machine::label(const Machine &m, const Arg &a) {
   return get<string>(a);
 }
 
 Com Machine::parse_command(const string &line) {
-  auto ct = parse_command_t(line);
-  auto at = (LABEL_COMS.contains(ct)) ? LABEL : parse_argument_t(line);
-  auto l = parse_label(line);
+  auto ct = get_com_type(line);
+  auto at = (LABEL_COMS.contains(ct)) ? LABEL : get_arg_type(line);
+  auto l = get_label(line);
   auto a = (LABEL_COMS.contains(ct)) ?
-		   parse_argument_label(line) :
-		   parse_argument_numeric(line);
+		   get_arg_label(line) :
+		   get_arg_number(line);
   return {move(ct), move(at), move(a), move(l)};
 }
 
-ComT Machine::parse_command_t(const string &line) {
+ComT Machine::get_com_type(const string &line) {
   auto it = COM_HAND.find(line.substr(0, line.find(LP)));
   if (it == COM_HAND.cend()) {
 	throw runtime_error(BAD_COMMAND_ERROR);
@@ -138,12 +161,12 @@ ComT Machine::parse_command_t(const string &line) {
   return it->first;
 }
 
-ArgT Machine::parse_argument_t(const string &line) {
+ArgT Machine::get_arg_type(const string &line) {
   auto it = ARG_TYPES.find(line.at(line.find(LP) + 1));
   return (it != ARG_TYPES.cend()) ? it->second : ADDRESS;
 }
 
-Arg Machine::parse_argument_numeric(const string &line) {
+Arg Machine::get_arg_number(const string &line) {
   size_t lp = line.find(LP);
   string arg = line.substr(lp + 1, line.find(RP) - lp - 1);
   if (ARG_TYPES.contains(arg.front())) {
@@ -152,12 +175,12 @@ Arg Machine::parse_argument_numeric(const string &line) {
   return stoi(arg);
 }
 
-Arg Machine::parse_argument_label(const string &line) {
+Arg Machine::get_arg_label(const string &line) {
   size_t lp = line.find(LP);
   return line.substr(lp + 1, line.find(RP) - lp - 1);
 }
 
-Lab Machine::parse_label(const string &line) {
+Lab Machine::get_label(const string &line) {
   Lab ans;
   string extra = line.substr(line.find(RP) + 1, string::npos);
   if (extra.size() > 1) {
@@ -169,26 +192,26 @@ Lab Machine::parse_label(const string &line) {
 Tape Machine::run() {
   auto it = commands_.begin();
   uint64_t executed = 0;
-  LOG_VERBOSE(RUNNING_MSG);
-  LOG_VERBOSE(memory_);
+  LOG_VERBOSE(*this, RUNNING_MSG);
+  LOG_VERBOSE(*this, memory_);
 
   while (!stop_ && it != commands_.cend()) {
 	auto f = COM_HAND.at(it->ctype_);
 	auto cmit = it;
 	++executed;
-	it = f(*this, it);
-	LOG_VERBOSE(COMMAND_INFO(executed, cmit) << " -> \t\t" << memory_);
+	it = f.second(*this, it);
+	LOG_VERBOSE(*this, COMMAND_INFO(executed, cmit) << " -> \t\t" << memory_);
   }
 
-  LOG_VERBOSE(FINISHED_MSG << endl);
-  LOG_VERBOSE(COMMANDS_EXECUTED_MSG << executed);
-  LOG(OUT_TAPE_MSG << output_);
+  LOG_VERBOSE(*this, FINISHED_MSG << endl);
+  LOG_VERBOSE(*this, COMMANDS_EXECUTED_MSG << executed);
+  LOG(*this, OUT_TAPE_MSG << output_);
   return output_;
 }
 
 void Machine::set_code(istream &is) {
   if (!is) {
-	LOG(BAD_ISTREAM_ERROR);
+	LOG(*this, BAD_ISTREAM_ERROR);
 	throw runtime_error(BAD_ISTREAM_ERROR);
   }
   string buffer;
@@ -201,13 +224,13 @@ void Machine::set_code(istream &is) {
 	  add_label(inserted);
 	}
   }
-  LOG(CODE_SET_MSG);
-  LOG_VERBOSE(COMMANDS_RECOGNIZED_MSG << commands_.size() << endl);
+  LOG(*this, CODE_SET_MSG);
+  LOG_VERBOSE(*this, COMMANDS_RECOGNIZED_MSG << commands_.size() << endl);
 }
 
 void Machine::set_input(istream &is) {
   if (!is) {
-	LOG(BAD_ISTREAM_ERROR);
+	LOG(*this, BAD_ISTREAM_ERROR);
 	throw runtime_error(BAD_ISTREAM_ERROR);
   }
   input_.clear();
@@ -215,8 +238,8 @@ void Machine::set_input(istream &is) {
   while (getline(is, s, SP)) {
 	input_.push_back(stoi(s));
   }
-  LOG(INPUT_RECEIVED_MSG);
-  LOG(IN_TAPE_MSG << input_ << endl);
+  LOG(*this, INPUT_RECEIVED_MSG);
+  LOG(*this, IN_TAPE_MSG << input_ << endl);
 }
 
 void Machine::set_log_stream(ostream &os) {
@@ -225,33 +248,13 @@ void Machine::set_log_stream(ostream &os) {
 
 void Machine::set_input(initializer_list<Val> vals) {
   input_.assign(vals);
-  LOG(INPUT_RECEIVED_MSG);
-  LOG(IN_TAPE_MSG << input_ << endl);
+  LOG(*this, INPUT_RECEIVED_MSG);
+  LOG(*this, IN_TAPE_MSG << input_ << endl);
 }
 
 void Machine::be_verbose(bool flag) {
   verbose_ = flag;
 }
-
-//void Machine::process_code(istream &is) {
-//  if (!is) {
-//	throw runtime_error(BAD_ISTREAM_ERROR);
-//  }
-//  string buffer;
-//  while (getline(is, buffer)) {
-//	if (buffer.empty()) {
-//	  continue;
-//	}
-//	auto inserted = process_command(buffer);
-//	if (inserted->label_.has_value()) {
-//	  add_label(inserted);
-//	}
-//  }
-//  *out_ << CODE_SET_MSG << endl;
-//  if (verbose_) {
-//	*out_ << COMMANDS_RECOGNIZED_MSG << commands_.size() << endl;
-//  }
-//}
 
 ComIt Machine::process_command(const string &line) {
   Com c = parse_command(line);
@@ -260,92 +263,104 @@ ComIt Machine::process_command(const string &line) {
 
 void Machine::add_label(ComIt it) {
   if (labels_.contains(it->label_.value())) {
-	LOG(LABEL_USED_ERROR);
+	LOG(*this, LABEL_USED_ERROR);
 	throw runtime_error(LABEL_USED_ERROR);
   }
   labels_[it->label_.value()] = it;
 }
 
 ComIt Machine::load(Machine &m, ComIt &c) {
-  m.memory_[0] = GET_VALUE(m, c);
+  auto v = GET_VALUE(m, c);
+  CHECK_STOP(m);
+  m.memory_[0] = v;
   return ++c;
 }
 
 ComIt Machine::store(Machine &m, ComIt &c) {
+  auto v = GET_VALUE(m, c);
+
+  LOG(m, "v = " << v);
+
+  CHECK_STOP(m);
   auto buf = m.memory_.at(0);
-  m.memory_[GET_VALUE(m, c)] = buf;
+  m.memory_[v] = buf;
   return ++c;
 }
 
 ComIt Machine::add(Machine &m, ComIt &c) {
-  auto buf = GET_VALUE(m, c);
-  m.memory_[0] += buf;
+  auto v = GET_VALUE(m, c);
+  CHECK_STOP(m);
+  m.memory_[0] += v;
   return ++c;
 }
 
 ComIt Machine::sub(Machine &m, ComIt &c) {
-  auto buf = GET_VALUE(m, c);
-  m.memory_[0] -= buf;
+  auto v = GET_VALUE(m, c);
+  CHECK_STOP(m);
+  m.memory_[0] -= v;
   return ++c;
 }
 
 ComIt Machine::mult(Machine &m, ComIt &c) {
-  auto buf = GET_VALUE(m, c);
-  m.memory_[0] *= buf;
+  auto v = GET_VALUE(m, c);
+  CHECK_STOP(m);
+  m.memory_[0] *= v;
   return ++c;
 }
 
 ComIt Machine::div(Machine &m, ComIt &c) {
-  auto buf = GET_VALUE(m, c);
-  m.memory_[0] /= buf;
+  auto v = GET_VALUE(m, c);
+  CHECK_STOP(m);
+  m.memory_[0] /= v;
   return ++c;
 }
 
 ComIt Machine::read(Machine &m, ComIt &c) {
-  m.memory_[GET_VALUE(m, c)] = m.input_.front();
+  if (m.input_.empty()) {
+	STOPPED_WITH(m, NO_MORE_INPUT_ERROR);
+  }
+  auto v = GET_VALUE(m, c);
+  CHECK_STOP(m);
+  m.memory_[v] = m.input_.front();
   m.input_.pop_front();
   return ++c;
 }
 
 ComIt Machine::write(Machine &m, ComIt &c) {
-  m.output_.push_back(GET_VALUE(m, c));
+  auto v = GET_VALUE(m, c);
+  CHECK_STOP(m);
+  m.output_.push_back(v);
   return ++c;
 }
 
 ComIt Machine::jump(Machine &m, ComIt &c) {
-  auto &labs = m.labels_;
-  auto l = GET_LABEL(m, c);
-  auto found = labs.find(l);
-  if (found == labs.end()) {
-	throw runtime_error(LABEL_NOT_FOUND_ERROR);
-  }
-  return found->second;
+  auto v = GET_LABEL(m, c);
+  CHECK_STOP(m);
+  auto f = m.labels_.find(v);
+  CHECK_LABEL_PRESENT(m, f);
+  return f->second;
 }
 
 ComIt Machine::jgtz(Machine &m, ComIt &c) {
-  if (m.memory_.at(0) == 0) {
+  if (m.memory_.at(0) < 1) {
 	return ++c;
   }
-  auto &labs = m.labels_;
-  auto l = GET_LABEL(m, c);
-  auto found = labs.find(l);
-  if (found == labs.end()) {
-	throw runtime_error(LABEL_NOT_FOUND_ERROR);
-  }
-  return found->second;
+  auto v = GET_LABEL(m, c);
+  CHECK_STOP(m);
+  auto f = m.labels_.find(v);
+  CHECK_LABEL_PRESENT(m, f);
+  return f->second;
 }
 
 ComIt Machine::jzero(Machine &m, ComIt &c) {
   if (m.memory_.at(0) != 0) {
 	return ++c;
   }
-  auto &labs = m.labels_;
-  auto l = GET_LABEL(m, c);
-  auto found = labs.find(l);
-  if (found == labs.end()) {
-	throw runtime_error(LABEL_NOT_FOUND_ERROR);
-  }
-  return found->second;
+  auto v = GET_LABEL(m, c);
+  CHECK_STOP(m);
+  auto f = m.labels_.find(v);
+  CHECK_LABEL_PRESENT(m, f);
+  return f->second;
 }
 
 ComIt Machine::halt(Machine &m, ComIt &c) {
