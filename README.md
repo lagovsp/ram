@@ -23,7 +23,7 @@ Machine m;
 3. Give it a name to identify it afterwards
 
 ```cpp
-m.set_name("super-machine");
+m.set_name("super-machine"); // optional
 ```
 
 4. Give the machine a stream to write to. Specify the logging mode
