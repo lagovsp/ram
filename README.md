@@ -20,28 +20,30 @@ using namespace RAM;
 Machine m;
 ```
 
-3. Give the machine a stream to write to. Specify the logging mode (briefly - default)
+3. Give the machine a stream to write to. Specify the logging mode
 
 ```cpp
 ofstream ls("../logs/log-count-0-1.txt");
-m.set_log_stream(ls);
-m.be_verbose(true);
+m.set_log_stream(ls); // cout by default
+m.be_verbose(true); //false by default
 ```
 
-4. Provide it with the input stream to take the RAM-code from
+4. Provide it with the input stream to take the RAM source code from
 
 ```cpp
 ifstream cs("../codes/code-count-0-1.txt");
 m.set_code(cs);
 ```
 
-5. Analogically, for your program input
+5. Analogically, for your program input use one of the following
 
 ```cpp
 ifstream is("../input/in-count-0-1.txt");
-m.set_input(is); // method 1
+m.set_input(is);
+```
 
-m.set_input({6, 1, 0, 1, 0, 0, 1}); // method 2
+```cpp
+m.set_input({ 6, 1, 0, 1, 0, 0, 1 });
 ```
 
 6. Run the code
@@ -121,22 +123,12 @@ HALT()
 ### Outputs
 
 ```cpp
-m.set_input({6, 1, 0, 1, 0, 0, 1});
-Output: { 1, 0 }
-```
-
-```cpp
-m.set_input({6, 1, 0, 1, 0, 0, 0});
-Output: { 0 }
-```
-
-```cpp
 m.set_input({3, 1, 0, 1});
 Output: { 1 }
 ```
 
 ```cpp
-m.set_input({2, 0, 1});
+m.set_input({6, 1, 0, 1, 0, 0, 1});
 Output: { 1, 0 }
 ```
 
@@ -147,4 +139,4 @@ Output: { 1, 0 }
 
 Detailed logs are in `logs` folder
 
-###### Copyright 2022 Sergey Lagov lagovsp@gmail.com
+###### Copyright 2022, Sergey Lagov

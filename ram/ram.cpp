@@ -26,14 +26,11 @@ static const string COMMANDS_RECOGNIZED_MSG = "Commands recognized ";
 static const string COMMANDS_EXECUTED_MSG = "Commands executed ";
 static const string CALLED_MSG = "called ";
 static const string REACHING_UNINIT_MSG = "Reaching uninitialized cell ";
-static const string REACHING_NEGATIVE_MSG = "Reaching neagtive cell ";
 
-static const string IN_TAPE_MSG = "Input: ";
 static const string OUT_TAPE_MSG = "Output: ";
 
 static const string RUNNING_MSG = "RUNNING... ";
 static const string FINISHED_MSG = "PROGRAM FINISHED ";
-static const string CRASHED_MSG = "PROGRAM CRASHED ";
 static const string WARNING_MSG = "WARNING ";
 
 #define LOG(m, msg)                                                          \
@@ -44,16 +41,9 @@ static const string WARNING_MSG = "WARNING ";
 
 #define STOPPED_WITH(m, msg)                                                 \
     do {                                                                     \
+        (m).stop_ = true;                                                    \
         LOG((m),(msg));                                                      \
         throw runtime_error((msg));                                          \
-    } while(false)
-
-#define CHECK_STOP(m)                                                        \
-    do {                                                                     \
-        if ((m).stop_) {                                                     \
-            LOG((m),CRASHED_MSG);                                            \
-            return (m).commands_.end();                                      \
-        }                                                                    \
     } while(false)
 
 #define CHECK_LABEL_PRESENT(m, found)                                        \
@@ -62,7 +52,6 @@ static const string WARNING_MSG = "WARNING ";
             (m).stop_ = true;                                                \
             STOPPED_WITH((m), LABEL_NOT_FOUND_ERROR);                        \
         }                                                                    \
-        CHECK_STOP((m));                                                     \
     } while(false)
 
 #define COMMAND_INFO(num, c)                                                 \
@@ -115,12 +104,10 @@ static const map<char, ArgT> ARG_TYPES = {
 };
 
 Arg Machine::get_arg(ComIt c) {
-  auto allowed_types = COM_HAND.at(c->ctype_).first;
-  auto a_handler = allowed_types.find(c->atype_);
+  const auto allowed_types = COM_HAND.at(c->ctype_).first;
+  const auto a_handler = allowed_types.find(c->atype_);
   if (a_handler == allowed_types.cend()) {
-	LOG(*this, BAD_ARG_TYPE_ERROR);
-	stop_ = true;
-	return Arg{};
+	STOPPED_WITH(*this, BAD_ARG_TYPE_ERROR);
   }
   return a_handler->second(*this, c->arg_);
 }
@@ -130,16 +117,13 @@ Arg Machine::value(Machine &m, const Arg &a) {
 }
 
 Arg Machine::direct_value(Machine &m, const Arg &a) {
-  if (m.stop_ && get<int>(a) < 0) {
-	m.stop_ = true;
-	LOG_VERBOSE(m, WARNING_MSG << REACHING_NEGATIVE_MSG);
-	return Arg{};
-  } else if (!m.memory_.contains(get<int>(a))) {
+  auto f = m.memory_.find(get<int>(a));
+  if (f == m.memory_.cend()) {
 	m.memory_[get<int>(a)] = rand();
 	LOG_VERBOSE(m, WARNING_MSG << REACHING_UNINIT_MSG);
 	return Arg{};
   }
-  return m.memory_.at(get<int>(a));
+  return f->second;
 }
 
 Arg Machine::indirect_value(Machine &m, const Arg &a) {
@@ -203,7 +187,7 @@ Tape Machine::run() {
   LOG_VERBOSE(*this, memory_);
 
   while (!stop_ && it != commands_.cend()) {
-	auto f = COM_HAND.at(it->ctype_);
+	auto &f = COM_HAND.at(it->ctype_);
 	auto cmit = it;
 	++executed;
 	it = f.second(*this, it);
@@ -218,8 +202,7 @@ Tape Machine::run() {
 
 void Machine::set_code(istream &is) {
   if (!is) {
-	LOG(*this, BAD_ISTREAM_ERROR);
-	throw runtime_error(BAD_ISTREAM_ERROR);
+	STOPPED_WITH(*this, BAD_ISTREAM_ERROR);
   }
   string buffer;
   while (getline(is, buffer)) {
@@ -237,16 +220,14 @@ void Machine::set_code(istream &is) {
 
 void Machine::set_input(istream &is) {
   if (!is) {
-	LOG(*this, BAD_ISTREAM_ERROR);
-	throw runtime_error(BAD_ISTREAM_ERROR);
+	STOPPED_WITH(*this, BAD_ISTREAM_ERROR);
   }
   input_.clear();
   string s;
   while (getline(is, s, SP)) {
 	input_.push_back(stoi(s));
   }
-  LOG(*this, INPUT_RECEIVED_MSG);
-  LOG(*this, IN_TAPE_MSG << input_ << endl);
+  LOG(*this, INPUT_RECEIVED_MSG << input_ << endl);
 }
 
 void Machine::set_log_stream(ostream &os) {
@@ -255,8 +236,7 @@ void Machine::set_log_stream(ostream &os) {
 
 void Machine::set_input(initializer_list<Val> vals) {
   input_.assign(vals);
-  LOG(*this, INPUT_RECEIVED_MSG);
-  LOG(*this, IN_TAPE_MSG << input_ << endl);
+  LOG(*this, INPUT_RECEIVED_MSG << input_ << endl);
 }
 
 void Machine::be_verbose(bool flag) {
@@ -270,51 +250,44 @@ ComIt Machine::process_command(const string &line) {
 
 void Machine::add_label(ComIt it) {
   if (labels_.contains(it->label_.value())) {
-	LOG(*this, LABEL_USED_ERROR);
-	throw runtime_error(LABEL_USED_ERROR);
+	STOPPED_WITH(*this, LABEL_USED_ERROR);
   }
   labels_[it->label_.value()] = it;
 }
 
 ComIt Machine::load(Machine &m, ComIt &c) {
   auto v = GET_VALUE(m, c);
-  CHECK_STOP(m);
   m.memory_[0] = v;
   return ++c;
 }
 
 ComIt Machine::store(Machine &m, ComIt &c) {
   auto v = GET_VALUE(m, c);
-  CHECK_STOP(m);
   auto buf = m.memory_.at(0);
-  m.memory_[v] = buf; // fix this
+  m.memory_[v] = buf;
   return ++c;
 }
 
 ComIt Machine::add(Machine &m, ComIt &c) {
   auto v = GET_VALUE(m, c);
-  CHECK_STOP(m);
   m.memory_[0] += v;
   return ++c;
 }
 
 ComIt Machine::sub(Machine &m, ComIt &c) {
   auto v = GET_VALUE(m, c);
-  CHECK_STOP(m);
   m.memory_[0] -= v;
   return ++c;
 }
 
 ComIt Machine::mult(Machine &m, ComIt &c) {
   auto v = GET_VALUE(m, c);
-  CHECK_STOP(m);
   m.memory_[0] *= v;
   return ++c;
 }
 
 ComIt Machine::div(Machine &m, ComIt &c) {
   auto v = GET_VALUE(m, c);
-  CHECK_STOP(m);
   m.memory_[0] /= v;
   return ++c;
 }
@@ -324,7 +297,6 @@ ComIt Machine::read(Machine &m, ComIt &c) {
 	STOPPED_WITH(m, NO_MORE_INPUT_ERROR);
   }
   auto v = GET_VALUE(m, c);
-  CHECK_STOP(m);
   m.memory_[v] = m.input_.front();
   m.input_.pop_front();
   return ++c;
@@ -332,14 +304,12 @@ ComIt Machine::read(Machine &m, ComIt &c) {
 
 ComIt Machine::write(Machine &m, ComIt &c) {
   auto v = GET_VALUE(m, c);
-  CHECK_STOP(m);
   m.output_.push_back(v);
   return ++c;
 }
 
 ComIt Machine::jump(Machine &m, ComIt &c) {
   auto v = GET_LABEL(m, c);
-  CHECK_STOP(m);
   auto f = m.labels_.find(v);
   CHECK_LABEL_PRESENT(m, f);
   return f->second;
@@ -350,7 +320,6 @@ ComIt Machine::jgtz(Machine &m, ComIt &c) {
 	return ++c;
   }
   auto v = GET_LABEL(m, c);
-  CHECK_STOP(m);
   auto f = m.labels_.find(v);
   CHECK_LABEL_PRESENT(m, f);
   return f->second;
@@ -361,7 +330,6 @@ ComIt Machine::jzero(Machine &m, ComIt &c) {
 	return ++c;
   }
   auto v = GET_LABEL(m, c);
-  CHECK_STOP(m);
   auto f = m.labels_.find(v);
   CHECK_LABEL_PRESENT(m, f);
   return f->second;

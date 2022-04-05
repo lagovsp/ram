@@ -1,11 +1,9 @@
 Code set 
 Commands recognized 39
 
-Input set 
-Input: { 0 }
+Input set { 0 }
 
-Input set 
-Input: { 6, 1, 0, 1, 0, 0, 1 }
+Input set { 6, 1, 0, 1, 0, 0, 1 }
 
 RUNNING... 
 {  }

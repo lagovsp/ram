@@ -90,16 +90,15 @@ class Machine {
   static inline const ArgT LABEL = "(<>)";
 
  private:
-  bool stop_ = false;
-
   Tape input_;
   Tape output_;
   Memory memory_;
   Labels labels_;
   Program commands_;
 
+  bool stop_ = false;
   bool verbose_ = false;
-  std::ostream *out_ = nullptr;
+  std::ostream *out_ = &std::cout;
 
   void add_label(ComIt);
   ComIt process_command(const std::string &);
@@ -113,7 +112,6 @@ class Machine {
 
   Arg get_arg(ComIt);
 
-  // may be made non-static
   static Arg value(Machine &, const Arg &);
   static Arg direct_value(Machine &, const Arg &);
   static Arg indirect_value(Machine &, const Arg &);

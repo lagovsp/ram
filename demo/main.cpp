@@ -1,6 +1,5 @@
 #include <iostream>
-
-#include "ram.h"
+#include <ram.h>
 
 using namespace std;
 using namespace RAM;
@@ -12,7 +11,7 @@ int main() {
   m.set_log_stream(ls);
   m.be_verbose(true);
 
-  ifstream cs("../codes/code-count-0-1.txt");
+  ifstream cs("../codes/src-count-0-1.txt");
   m.set_code(cs);
 
   ifstream is("../input/in-count-0-1.txt");
