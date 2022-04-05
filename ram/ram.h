@@ -65,6 +65,8 @@ class Machine {
  public:
   Machine() = default;
   Tape run();
+  const Tape &input() const;
+  const Tape &output() const;
 
   void set_name(const Name &);
   void set_code(std::istream &);

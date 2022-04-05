@@ -201,6 +201,14 @@ Tape Machine::run() {
   return output_;
 }
 
+const Tape &Machine::input() const {
+  return input_;
+}
+
+const Tape &Machine::output() const {
+  return output_;
+}
+
 void Machine::set_name(const Name &name) {
   name_ = name;
   LOG(*this, MACHINE_NAME_MSG << name_ << endl);
