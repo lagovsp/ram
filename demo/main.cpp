@@ -15,16 +15,18 @@ int main() {
   Machine m;
   m.be_verbose(true);
 
-  for (const auto &t: tasks) {
-	ofstream ls("../tasks/" + t + "/log.txt");
-	ifstream ss("../tasks/" + t + "/source.txt");
-	ifstream is("../tasks/" + t + "/input.txt");
+  for (const auto &task: tasks) {
+
+	ofstream ls("../tasks/" + task + "/log.txt");
+	ifstream ss("../tasks/" + task + "/source.txt");
+	ifstream is("../tasks/" + task + "/input.txt");
 
 	m.set_log_stream(ls);
 	m.set_code(ss);
 	m.set_input(is);
+	m.set_name(task);
 
-	auto output = m.run();
+	m.run();
   }
 
   return 0;

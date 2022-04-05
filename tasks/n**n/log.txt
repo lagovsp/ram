@@ -3,7 +3,9 @@ Commands recognized 15
 
 Input set { 5 }
 
-RUNNING... 
+Machine name set n**n
+
+RUNNING n**n
  1. LOAD 1 (=)  -> 		{ (0)->1 }
  2. STORE 3 ()  -> 		{ (0)->1, (3)->1 }
  3. READ 0 ()  -> 		{ (0)->5, (3)->1 }

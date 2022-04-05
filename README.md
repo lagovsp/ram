@@ -20,7 +20,13 @@ using namespace RAM;
 Machine m;
 ```
 
-3. Give the machine a stream to write to. Specify the logging mode
+3. Give it a name to identify it afterwards
+
+```cpp
+m.set_name("super-machine");
+```
+
+4. Give the machine a stream to write to. Specify the logging mode
 
 ```cpp
 ofstream ls("log.txt");
@@ -28,14 +34,14 @@ m.set_log_stream(ls); // cout by default
 m.be_verbose(true); // false by default
 ```
 
-4. Provide it with the input stream to take the RAM source code from
+5. Provide it with the input stream to take the RAM source code from
 
 ```cpp
 ifstream cs("source.txt");
 m.set_code(cs);
 ```
 
-5. Analogically, for your program input use one of the following
+6. Analogically, for your program input use one of the following
 
 ```cpp
 ifstream is("input.txt");
@@ -46,13 +52,13 @@ m.set_input(is);
 m.set_input({ 6, 1, 0, 1, 0, 0, 1 });
 ```
 
-6. Run the code
+7. Run the code
 
 ```cpp
 auto output = m.run();
 ```
 
-7. Check the logs or print the out tape
+8. Check the logs or print the out tape
 
 ```cpp
 cout << output;

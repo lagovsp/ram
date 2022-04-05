@@ -19,6 +19,7 @@ static const string BAD_COMMAND_ERROR = "bad command";
 static const string BAD_ISTREAM_ERROR = "bad istream";
 static const string NO_MORE_INPUT_ERROR = "no more input";
 
+static const string MACHINE_NAME_MSG = "Machine name set ";
 static const string INPUT_RECEIVED_MSG = "Input set ";
 static const string CODE_SET_MSG = "Code set ";
 
@@ -28,7 +29,7 @@ static const string REACHING_UNINIT_MSG = "Reaching uninitialized cell ";
 
 static const string OUT_TAPE_MSG = "Output: ";
 
-static const string RUNNING_MSG = "RUNNING... ";
+static const string RUNNING_MSG = "RUNNING ";
 static const string FINISHED_MSG = "PROGRAM FINISHED ";
 static const string WARNING_MSG = "WARNING ";
 
@@ -184,7 +185,7 @@ Tape Machine::run() {
   output_.clear();
   auto it = commands_.begin();
   uint64_t executed = 0;
-  LOG_VERBOSE(*this, RUNNING_MSG);
+  LOG_VERBOSE(*this, RUNNING_MSG << name_);
 
   while (!stop_ && it != commands_.cend()) {
 	auto &f = COM_HAND.at(it->ctype_);
@@ -198,6 +199,11 @@ Tape Machine::run() {
   LOG_VERBOSE(*this, COMMANDS_EXECUTED_MSG << executed);
   LOG(*this, OUT_TAPE_MSG << output_);
   return output_;
+}
+
+void Machine::set_name(const Name &name) {
+  name_ = name;
+  LOG(*this, MACHINE_NAME_MSG << name_ << endl);
 }
 
 void Machine::set_code(istream &is) {
@@ -238,12 +244,25 @@ void Machine::set_log_stream(ostream &os) {
 }
 
 void Machine::set_input(initializer_list<Val> vals) {
+  input_.clear();
   input_.assign(vals);
   LOG(*this, INPUT_RECEIVED_MSG << input_ << endl);
 }
 
 void Machine::be_verbose(bool flag) {
   verbose_ = flag;
+}
+
+void Machine::reset() {
+  name_.clear();
+  input_.clear();
+  output_.clear();
+  memory_.clear();
+  labels_.clear();
+  commands_.clear();
+  stop_ = false;
+  verbose_ = false;
+  out_ = &cout;
 }
 
 ComIt Machine::process_command(const string &line) {

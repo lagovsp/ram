@@ -40,6 +40,7 @@ using Val = int;
 using Arg = std::variant<int, std::string>;
 using Lab = std::optional<std::string>;
 
+using Name = std::string;
 using ComT = std::string;
 using ArgT = std::string;
 
@@ -65,9 +66,11 @@ class Machine {
   Machine() = default;
   Tape run();
 
+  void set_name(const Name &);
   void set_code(std::istream &);
   void set_input(std::istream &);
   void set_input(std::initializer_list<Val>);
+  void reset();
 
   void set_log_stream(std::ostream &os);
   void be_verbose(bool);
@@ -91,6 +94,7 @@ class Machine {
   static inline const ArgT LABEL = "(<>)";
 
  private:
+  Name name_;
   Tape input_;
   Tape output_;
   Memory memory_;

@@ -3,7 +3,9 @@ Commands recognized 23
 
 Input set { 4 }
 
-RUNNING... 
+Machine name set 3**n+2**n
+
+RUNNING 3**n+2**n
  1. LOAD 1 (=)  -> 		{ (0)->1 }
  2. STORE 2 ()  -> 		{ (0)->1, (2)->1 }
  3. STORE 3 ()  -> 		{ (0)->1, (2)->1, (3)->1 }

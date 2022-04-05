@@ -3,7 +3,9 @@ Commands recognized 39
 
 Input set { 5, 1, 0, 1, 0, 0 }
 
-RUNNING... 
+Machine name set count-0-1
+
+RUNNING count-0-1
  1. LOAD 0 (=)  -> 		{ (0)->0 }
  2. STORE 2 ()  -> 		{ (0)->0, (2)->0 }
  3. STORE 3 ()  -> 		{ (0)->0, (2)->0, (3)->0 }
