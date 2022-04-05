@@ -1,39 +1,67 @@
 # Random Access Machine
 
-## Usage
+## Manual
 
-1. Setting up
+1. Firstly, set up `CMakeLists.txt`
+
+```cmake
+add_executable(exec *.cpp)
+
+add_subdirectory(ram)
+target_link_libraries(exec PUBLIC ram)
+```
+
+2. Include the library and create an instance of RAM
 
 ```cpp
 #include "RAM.h"
 using namespace RAM;
-```
-
-2. Create an instance of RAM
-
-```cpp
+...
 Machine m;
 ```
 
-3. Adjust it
+3. Give it a name to identify it afterwards
 
 ```cpp
-m.set_path("ram-count-0-1.txt"); // set the source RAM-code path
-m.set_input({6, 1, 0, 1, 0, 0, 1}); // enter the input data
-m.be_verbose(false); // to be verbose while executing (false by default)
-m.set_ostream(cout); // customize the out stream (cout by default)
+m.set_name("super-machine"); // optional
 ```
 
-4. Run the code
+4. Give the machine a stream to write to. Specify the logging mode
+
+```cpp
+ofstream ls("log.txt");
+m.set_log_stream(ls); // cout by default
+m.be_verbose(true); // false by default
+```
+
+5. Provide it with the input stream to take the RAM source code from
+
+```cpp
+ifstream cs("source.txt");
+m.set_code(cs);
+```
+
+6. Analogically, for your program input use one of the following
+
+```cpp
+ifstream is("input.txt");
+m.set_input(is);
+```
+
+```cpp
+m.set_input({ 6, 1, 0, 1, 0, 0, 1 });
+```
+
+7. Run the code
 
 ```cpp
 auto output = m.run();
 ```
 
-5. See the output
+8. Check the logs or print the out tape
 
 ```cpp
-cout << "Output: " << output;
+cout << output;
 ```
 
 ## Example
@@ -46,7 +74,7 @@ print `0`. If the values occur the same number of times, the output is to be two
 ***Note:***
 *It is forbidden to use negative values everywhere*
 
-### RAM-code sample
+### Solution sample
 
 ```
 LOAD(=0)
@@ -101,22 +129,17 @@ HALT()
 ### Outputs
 
 ```cpp
-m.set_input({6, 1, 0, 1, 0, 0, 1});
-Output: { 1, 0 }
-```
-
-```cpp
-m.set_input({6, 1, 0, 1, 0, 0, 0});
-Output: { 0 }
-```
-
-```cpp
 m.set_input({3, 1, 0, 1});
 Output: { 1 }
 ```
 
 ```cpp
-m.set_input({2, 0, 1});
+m.set_input({ 6, 1, 0, 1, 0, 0, 0 });
+Output: { 0 }
+```
+
+```cpp
+m.set_input({6, 1, 0, 1, 0, 0, 1});
 Output: { 1, 0 }
 ```
 
@@ -125,6 +148,6 @@ m.set_input({0});
 Output: { 1, 0 }
 ```
 
-You can have a glance at the logs in `output.txt`
+Detailed logs are in `tasks\<task-name>\log.txt`
 
-###### Copyright 2022 Sergey Lagov lagovsp@gmail.com
+###### Copyright 2022, Sergey Lagov
