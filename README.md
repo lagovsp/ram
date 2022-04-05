@@ -68,7 +68,7 @@ print `0`. If the values occur the same number of times, the output is to be two
 ***Note:***
 *It is forbidden to use negative values everywhere*
 
-### RAM-code sample
+### Solution sample
 
 ```
 LOAD(=0)
@@ -142,6 +142,6 @@ m.set_input({0});
 Output: { 1, 0 }
 ```
 
-Detailed logs are in `tasks\<task-name>\log-<task-name>.txt`
+Detailed logs are in `tasks\<task-name>\log.txt`
 
 ###### Copyright 2022, Sergey Lagov
