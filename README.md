@@ -37,8 +37,8 @@ m.be_verbose(true); // false by default
 5. Provide it with the input stream to take the RAM source code from
 
 ```cpp
-ifstream cs("source.txt");
-m.set_code(cs);
+ifstream ss("source.txt");
+m.set_code(ss);
 ```
 
 6. Analogically, for your program input use one of the following
