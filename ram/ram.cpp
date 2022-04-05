@@ -42,13 +42,14 @@ static const string WARNING_MSG = "WARNING ";
 #define STOPPED_WITH(m, msg)                                                 \
     do {                                                                     \
         (m).stop_ = true;                                                    \
-        LOG((m),(msg));                                                      \
+        LOG((m), msg);                                                       \
         throw runtime_error((msg));                                          \
     } while(false)
 
-#define CHECK_LABEL_PRESENT(m, found)                                        \
+#define CHECK_LABEL_PRESENT(m, lab)                                          \
     do {                                                                     \
-        if ((found) == (m).labels_.cend()) {                                 \
+        auto f = (m).labels_.find(lab);                                      \
+        if (f == (m).labels_.cend()) {                                       \
             (m).stop_ = true;                                                \
             STOPPED_WITH((m), LABEL_NOT_FOUND_ERROR);                        \
         }                                                                    \
@@ -184,7 +185,6 @@ Tape Machine::run() {
   auto it = commands_.begin();
   uint64_t executed = 0;
   LOG_VERBOSE(*this, RUNNING_MSG);
-  LOG_VERBOSE(*this, memory_);
 
   while (!stop_ && it != commands_.cend()) {
 	auto &f = COM_HAND.at(it->ctype_);
@@ -310,8 +310,8 @@ ComIt Machine::write(Machine &m, ComIt &c) {
 
 ComIt Machine::jump(Machine &m, ComIt &c) {
   auto v = GET_LABEL(m, c);
+  CHECK_LABEL_PRESENT(m, v);
   auto f = m.labels_.find(v);
-  CHECK_LABEL_PRESENT(m, f);
   return f->second;
 }
 
@@ -320,8 +320,8 @@ ComIt Machine::jgtz(Machine &m, ComIt &c) {
 	return ++c;
   }
   auto v = GET_LABEL(m, c);
+  CHECK_LABEL_PRESENT(m, v);
   auto f = m.labels_.find(v);
-  CHECK_LABEL_PRESENT(m, f);
   return f->second;
 }
 
@@ -330,8 +330,8 @@ ComIt Machine::jzero(Machine &m, ComIt &c) {
 	return ++c;
   }
   auto v = GET_LABEL(m, c);
+  CHECK_LABEL_PRESENT(m, v);
   auto f = m.labels_.find(v);
-  CHECK_LABEL_PRESENT(m, f);
   return f->second;
 }
 

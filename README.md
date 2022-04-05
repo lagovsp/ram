@@ -23,7 +23,7 @@ Machine m;
 3. Give the machine a stream to write to. Specify the logging mode
 
 ```cpp
-ofstream ls("../logs/log-count-0-1.txt");
+ofstream ls("log.txt");
 m.set_log_stream(ls); // cout by default
 m.be_verbose(true); // false by default
 ```
@@ -31,14 +31,14 @@ m.be_verbose(true); // false by default
 4. Provide it with the input stream to take the RAM source code from
 
 ```cpp
-ifstream cs("../codes/code-count-0-1.txt");
+ifstream cs("source.txt");
 m.set_code(cs);
 ```
 
 5. Analogically, for your program input use one of the following
 
 ```cpp
-ifstream is("../input/in-count-0-1.txt");
+ifstream is("input.txt");
 m.set_input(is);
 ```
 
@@ -142,6 +142,6 @@ m.set_input({0});
 Output: { 1, 0 }
 ```
 
-Detailed logs are in `logs` folder
+Detailed logs are in `tasks\<task-name>\log-<task-name>.txt`
 
 ###### Copyright 2022, Sergey Lagov

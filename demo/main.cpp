@@ -7,15 +7,15 @@ using namespace RAM;
 int main() {
   Machine m;
 
-  ofstream ls("../logs/log-count-0-1.txt");
+  string task = "3**n+2**n";
+
+  ofstream ls("../tasks/" + task + "/log.txt");
+  ifstream ss("../tasks/" + task + "/source.txt");
+  ifstream is("../tasks/" + task + "/input.txt");
+
   m.set_log_stream(ls);
   m.be_verbose(true);
-
-  ifstream cs("../codes/src-count-0-1.txt");
-  m.set_code(cs);
-
-  ifstream is("../input/in-count-0-1.txt");
-  m.set_input({0});
+  m.set_code(ss);
   m.set_input(is);
 
   auto output = m.run();
