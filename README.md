@@ -25,7 +25,7 @@ Machine m;
 ```cpp
 ofstream ls("../logs/log-count-0-1.txt");
 m.set_log_stream(ls); // cout by default
-m.be_verbose(true); //false by default
+m.be_verbose(true); // false by default
 ```
 
 4. Provide it with the input stream to take the RAM source code from
@@ -125,6 +125,11 @@ HALT()
 ```cpp
 m.set_input({3, 1, 0, 1});
 Output: { 1 }
+```
+
+```cpp
+m.set_input({ 6, 1, 0, 1, 0, 0, 0 });
+Output: { 0 }
 ```
 
 ```cpp
