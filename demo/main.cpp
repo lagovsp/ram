@@ -4,7 +4,7 @@
 using namespace std;
 using namespace RAM;
 
-static const vector<string> tasks = {
+static const vector<Name> tasks = {
 	"3**n+2**n",
 	"count-0-1",
 	"n!+n**2",
@@ -16,7 +16,6 @@ int main() {
   m.be_verbose(true);
 
   for (const auto &task: tasks) {
-
 	ofstream ls("../tasks/" + task + "/log.txt");
 	ifstream ss("../tasks/" + task + "/source.txt");
 	ifstream is("../tasks/" + task + "/input.txt");
