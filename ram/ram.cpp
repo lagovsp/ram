@@ -24,7 +24,6 @@ static const string CODE_SET_MSG = "Code set ";
 
 static const string COMMANDS_RECOGNIZED_MSG = "Commands recognized ";
 static const string COMMANDS_EXECUTED_MSG = "Commands executed ";
-static const string CALLED_MSG = "called ";
 static const string REACHING_UNINIT_MSG = "Reaching uninitialized cell ";
 
 static const string OUT_TAPE_MSG = "Output: ";
@@ -56,7 +55,7 @@ static const string WARNING_MSG = "WARNING ";
     } while(false)
 
 #define COMMAND_INFO(num, c)                                                 \
-    (num) << ". " << CALLED_MSG << (c)->ctype_                               \
+    setw(2) << (num) << ". " << (c)->ctype_                                  \
     << " " << (c)->arg_                                                      \
     << " " << (c)->atype_                                                    \
     << " " << (c)->label_.value_or("")
@@ -182,6 +181,7 @@ Lab Machine::get_label(const string &line) {
 }
 
 Tape Machine::run() {
+  output_.clear();
   auto it = commands_.begin();
   uint64_t executed = 0;
   LOG_VERBOSE(*this, RUNNING_MSG);
@@ -204,6 +204,9 @@ void Machine::set_code(istream &is) {
   if (!is) {
 	STOPPED_WITH(*this, BAD_ISTREAM_ERROR);
   }
+  memory_.clear();
+  labels_.clear();
+  commands_.clear();
   string buffer;
   while (getline(is, buffer)) {
 	if (buffer.empty()) {
