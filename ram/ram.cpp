@@ -188,7 +188,7 @@ Tape Machine::run() {
   LOG_VERBOSE(*this, RUNNING_MSG << name_);
 
   while (!stop_ && it != commands_.cend()) {
-	auto &f = COM_HAND.at(it->ctype_);
+	auto f = COM_HAND.at(it->ctype_);
 	auto cmit = it;
 	++executed;
 	it = f.second(*this, it);
