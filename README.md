@@ -20,7 +20,7 @@ using namespace RAM;
 Machine m;
 ```
 
-3. Give it a name to identify it afterwards
+3. For afterwards identification, give it a name
 
 ```cpp
 m.set_name("super-machine"); // optional
