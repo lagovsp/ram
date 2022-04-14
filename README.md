@@ -123,7 +123,6 @@ WRITE(=1) FU
 HALT()
 
 WRITE(=0) FZ
-HALT()
 ```
 
 ### Outputs
