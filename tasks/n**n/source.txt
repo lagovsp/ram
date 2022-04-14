@@ -14,4 +14,3 @@ STORE(2)
 JUMP(L)
 
 WRITE(3) F
-HALT()

@@ -16,22 +16,6 @@
 #include <sstream>
 #include <functional>
 
-#define MACHINE_STATIC_FUN_DECL(name) static ComIt name(Machine &, ComIt &)
-
-#define ALL_MACHINE_STATIC_FUN_DECL \
-    MACHINE_STATIC_FUN_DECL(load); \
-    MACHINE_STATIC_FUN_DECL(store); \
-    MACHINE_STATIC_FUN_DECL(add); \
-    MACHINE_STATIC_FUN_DECL(sub); \
-    MACHINE_STATIC_FUN_DECL(mult); \
-    MACHINE_STATIC_FUN_DECL(div); \
-    MACHINE_STATIC_FUN_DECL(read); \
-    MACHINE_STATIC_FUN_DECL(write); \
-    MACHINE_STATIC_FUN_DECL(jump); \
-    MACHINE_STATIC_FUN_DECL(jgtz); \
-    MACHINE_STATIC_FUN_DECL(jzero); \
-    MACHINE_STATIC_FUN_DECL(halt)
-
 namespace RAM {
 
 using Add = int;
@@ -141,7 +125,19 @@ class Machine {
 	  {LABEL, label},
   };
 
-  ALL_MACHINE_STATIC_FUN_DECL;
+  static ComIt load(Machine &, ComIt &);
+  static ComIt store(Machine &, ComIt &);
+  static ComIt add(Machine &, ComIt &);
+  static ComIt sub(Machine &, ComIt &);
+  static ComIt mult(Machine &, ComIt &);
+  static ComIt div(Machine &, ComIt &);
+  static ComIt read(Machine &, ComIt &);
+  static ComIt write(Machine &, ComIt &);
+  static ComIt jump(Machine &, ComIt &);
+  static ComIt jgtz(Machine &, ComIt &);
+  static ComIt jzero(Machine &, ComIt &);
+  static ComIt halt(Machine &, ComIt &);
+
   using Fun = std::function<ComIt(Machine &, ComIt &)>;
 
   static inline const std::map<ComT, std::pair<std::map<ArgT, ArgHand>, Fun>>

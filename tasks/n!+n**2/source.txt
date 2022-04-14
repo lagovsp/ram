@@ -17,4 +17,3 @@ LOAD(1) S
 MULT(1)
 ADD(2)
 WRITE(0)
-HALT()

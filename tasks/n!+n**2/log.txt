@@ -1,5 +1,5 @@
 Code set 
-Commands recognized 18
+Commands recognized 17
 
 Input set { 6 }
 
@@ -64,8 +64,7 @@ RUNNING n!+n**2
 56. MULT 1 ()  -> 		{ (0)->36, (1)->6, (2)->720, (3)->0 }
 57. ADD 2 ()  -> 		{ (0)->756, (1)->6, (2)->720, (3)->0 }
 58. WRITE 0 ()  -> 		{ (0)->756, (1)->6, (2)->720, (3)->0 }
-59. HALT  (<>)  -> 		{ (0)->756, (1)->6, (2)->720, (3)->0 }
 PROGRAM FINISHED 
 
-Commands executed 59
+Commands executed 58
 Output: { 756 }

@@ -1,5 +1,5 @@
 Code set 
-Commands recognized 15
+Commands recognized 14
 
 Input set { 5 }
 
@@ -53,8 +53,7 @@ RUNNING n**n
 45. JUMP L (<>)  -> 		{ (0)->0, (1)->5, (2)->0, (3)->3125 }
 46. JZERO F (<>) L -> 		{ (0)->0, (1)->5, (2)->0, (3)->3125 }
 47. WRITE 3 () F -> 		{ (0)->0, (1)->5, (2)->0, (3)->3125 }
-48. HALT  (<>)  -> 		{ (0)->0, (1)->5, (2)->0, (3)->3125 }
 PROGRAM FINISHED 
 
-Commands executed 48
+Commands executed 47
 Output: { 3125 }

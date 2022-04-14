@@ -1,5 +1,5 @@
 Code set 
-Commands recognized 39
+Commands recognized 38
 
 Input set { 5, 1, 0, 1, 0, 0 }
 
@@ -78,8 +78,7 @@ RUNNING count-0-1
 70. DIV 2 ()  -> 		{ (0)->0, (1)->0, (2)->3, (3)->2 }
 71. JZERO FZ (<>)  -> 		{ (0)->0, (1)->0, (2)->3, (3)->2 }
 72. WRITE 0 (=) FZ -> 		{ (0)->0, (1)->0, (2)->3, (3)->2 }
-73. HALT  (<>)  -> 		{ (0)->0, (1)->0, (2)->3, (3)->2 }
 PROGRAM FINISHED 
 
-Commands executed 73
+Commands executed 72
 Output: { 0 }

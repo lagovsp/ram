@@ -1,5 +1,5 @@
 Code set 
-Commands recognized 23
+Commands recognized 22
 
 Input set { 4 }
 
@@ -60,8 +60,7 @@ RUNNING 3**n+2**n
 52. LOAD 2 () ANS -> 		{ (0)->16, (1)->0, (2)->16, (3)->81 }
 53. ADD 3 ()  -> 		{ (0)->97, (1)->0, (2)->16, (3)->81 }
 54. WRITE 0 ()  -> 		{ (0)->97, (1)->0, (2)->16, (3)->81 }
-55. HALT  (<>)  -> 		{ (0)->97, (1)->0, (2)->16, (3)->81 }
 PROGRAM FINISHED 
 
-Commands executed 55
+Commands executed 54
 Output: { 97 }

@@ -4,18 +4,22 @@
 using namespace std;
 using namespace RAM;
 
-static const vector<Name> tasks = {
+static const vector<Name> demo_tasks = {
 	"3**n+2**n",
 	"count-0-1",
 	"n!+n**2",
 	"n**n",
 };
 
+static const vector<Name> test_tasks = {
+	"test-code",
+};
+
 int main() {
   Machine m;
   m.be_verbose(true);
 
-  for (const auto &task: tasks) {
+  for (const auto &task: demo_tasks) {
 	ofstream ls("../tasks/" + task + "/log.txt");
 	ifstream ss("../tasks/" + task + "/source.txt");
 	ifstream is("../tasks/" + task + "/input.txt");

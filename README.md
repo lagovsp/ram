@@ -148,6 +148,6 @@ m.set_input({0});
 Output: { 1, 0 }
 ```
 
-Detailed logs are in `tasks\<task-name>\log.txt`
+Detailed logs are in `demo_tasks\<task-name>\log.txt`
 
 ###### Copyright 2022, Sergey Lagov
