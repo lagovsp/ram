@@ -1,0 +1,17 @@
+os: linux
+language: minimal
+services:
+  - docker
+
+jobs:
+  include:
+    - name: "tests"
+      script:
+        - docker run -v `pwd`:`pwd` -w `pwd` -t justddreamm/ram tests/tests.sh
+
+notifications:
+  email: false
+
+branches:
+  except:
+    - master
