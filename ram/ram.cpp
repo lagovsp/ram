@@ -121,7 +121,7 @@ Arg Machine::direct_value(Machine &m, const Arg &a) {
   auto f = m.memory_.find(get<Val>(a));
   if (f == m.memory_.cend()) {
 	LOG_VERBOSE(m, WARNING_MSG << REACHING_UNINIT_MSG);
-	return m.memory_[get<Val>(a)] = rand();
+	return m.memory_[get<Val>(a)] = static_cast<Val>(Machine::gen_());
   }
   return f->second;
 }

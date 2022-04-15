@@ -8,6 +8,7 @@
 #include <list>
 #include <string>
 #include <memory>
+#include <random>
 #include <iomanip>
 #include <fstream>
 #include <variant>
@@ -90,6 +91,7 @@ class Machine {
   bool stop_ = false;
   bool verbose_ = false;
   std::ostream *out_ = &std::cout;
+  static inline std::mt19937_64 gen_{static_cast<uint_fast64_t>(time(nullptr))};
 
   void add_label(ComIt);
   ComIt process_command(const std::string &);
