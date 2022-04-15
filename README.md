@@ -1,8 +1,10 @@
 # Random Access Machine
 
+[![Build Status](https://app.travis-ci.com/justddreamm/ram.svg?branch=master)](https://app.travis-ci.com/justddreamm/ram)
+
 ## Manual
 
-1. Firstly, set up `CMakeLists.txt`
+1. Set up `CMakeLists.txt`
 
 ```cmake
 add_executable(exec *.cpp)
@@ -20,7 +22,7 @@ using namespace RAM;
 Machine m;
 ```
 
-3. For afterwards identification, give it a name
+3. For further identification, give it a name
 
 ```cpp
 m.set_name("super-machine"); // optional
@@ -30,8 +32,8 @@ m.set_name("super-machine"); // optional
 
 ```cpp
 ofstream ls("log.txt");
-m.set_log_stream(ls); // cout by default
-m.be_verbose(true); // false by default
+m.set_log_stream(ls); // default -> cout
+m.be_verbose(true); // default -> false
 ```
 
 5. Provide it with the input stream to take the RAM source code from
@@ -41,7 +43,7 @@ ifstream ss("source.txt");
 m.set_code(ss);
 ```
 
-6. Analogically, for your program input use one of the following
+6. In order to set the input pick one of the following options
 
 ```cpp
 ifstream is("input.txt");
@@ -63,6 +65,14 @@ auto output = m.run();
 ```cpp
 cout << output;
 ```
+
+## Notes
+
+- The machine does not control any uninitialized cells access. In case of reaching such, random value is generated
+  as its content. Logs disclose that occurrences with the corresponding message
+- There is no any prompts or tips on the emerged issue with the source code correctness. Error message is the only
+  sign of the ill-formed source code
+- All the functions are to be in capitals with a mandatory parentheses following (even for `HALT()`)
 
 ## Example
 
