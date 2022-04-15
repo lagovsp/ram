@@ -7,7 +7,7 @@ jobs:
   include:
     - name: "tests"
       script:
-        - docker run -v `pwd`:`pwd` -w `pwd` -t ./tests/tests.sh
+        - docker run -v `pwd`:`pwd` -w `pwd` -t rusdevops/bootstrap-cpp tests/tests.sh
 
 notifications:
   email: false
