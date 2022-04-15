@@ -3,25 +3,25 @@
 #ifndef INCLUDE_RAM_H_
 #define INCLUDE_RAM_H_
 
+#include <map>
+#include <set>
 #include <list>
 #include <string>
-#include <iostream>
+#include <memory>
 #include <iomanip>
 #include <fstream>
 #include <variant>
-#include <unordered_map>
-#include <map>
-#include <set>
-#include <memory>
 #include <sstream>
+#include <iostream>
 #include <functional>
+#include <unordered_map>
 
 namespace RAM {
 
-using Add = int;
-using Val = int;
+using Add = int64_t;
+using Val = int64_t;
 
-using Arg = std::variant<int, std::string>;
+using Arg = std::variant<Val, std::string>;
 using Lab = std::optional<std::string>;
 
 using Name = std::string;

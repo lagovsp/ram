@@ -19,7 +19,7 @@ int main() {
   Machine m;
   m.be_verbose(true);
 
-  for (const auto &task: demo_tasks) {
+  for (const auto &task: test_tasks) {
 	ofstream ls("../tasks/" + task + "/log.txt");
 	ifstream ss("../tasks/" + task + "/source.txt");
 	ifstream is("../tasks/" + task + "/input.txt");

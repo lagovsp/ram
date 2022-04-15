@@ -61,11 +61,11 @@ static const string WARNING_MSG = "WARNING ";
     << " " << (c)->atype_                                                    \
     << " " << (c)->label_.value_or("")
 
-#define GET_VALUE(m, c) get<int>((m).get_arg((c)))
+#define GET_VALUE(m, c) get<Val>((m).get_arg((c)))
 #define GET_LABEL(m, c) get<string>((m).get_arg((c)))
 
 ostream &operator<<(ostream &os, const Arg &a) {
-  if (a.index() == 0) { os << get<int>(a); }
+  if (a.index() == 0) { os << get<Val>(a); }
   else { os << get<string>(a); }
   return os;
 }
@@ -114,14 +114,14 @@ Arg Machine::get_arg(ComIt c) {
 }
 
 Arg Machine::value(Machine &m, const Arg &a) {
-  return get<int>(a);
+  return get<Val>(a);
 }
 
 Arg Machine::direct_value(Machine &m, const Arg &a) {
-  auto f = m.memory_.find(get<int>(a));
+  auto f = m.memory_.find(get<Val>(a));
   if (f == m.memory_.cend()) {
 	LOG_VERBOSE(m, WARNING_MSG << REACHING_UNINIT_MSG);
-	return m.memory_[get<int>(a)] = rand();
+	return m.memory_[get<Val>(a)] = rand();
   }
   return f->second;
 }
