@@ -8,7 +8,7 @@ Machine name set test-code
 RUNNING test-code
  1. LOAD 1 (=)  -> 		{ (0)->1 }
 WARNING Reaching uninitialized cell 
- 2. ADD 5 ()  -> 		{ (0)->2121079768037548466, (5)->2121079768037548465 }
+ 2. ADD 5 ()  -> 		{ (0)->3058408419358031825, (5)->3058408419358031824 }
 PROGRAM FINISHED 
 
 Commands executed 2
