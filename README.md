@@ -69,7 +69,7 @@ cout << output;
 ## Notes
 
 - The machine does not control any uninitialized cells access. In case of reaching such, random value is generated
-  as its content. Logs disclose that occurrences with the corresponding message
+  as its content. Logs disclose these occurrences with the corresponding messages
 - There is no any prompts or tips on the emerged issue with the source code correctness. Error message is the only
   sign of the ill-formed source code
 - All the functions are to be in capitals with a mandatory parentheses following (even for `HALT()`)
